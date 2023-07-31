@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "sturdy-tuner-393016",
+  "private_key_id": "49517332d8ccbd167c209af24417ea1501ab5044",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCUEbWJC9nOJcDX\nyqHf1tjDZ9m3TGW6B/wz9QV0RMYLILhZZGpqL+Q+nM4LACcm0ODQoJXZcgxwfwX9\njeA5cuOaZzo80bF5E5XyTnUy8BHpgav3cCCRM6op134zYbDs67p1AcSJqfA1iO2h\nO+LP0rN4tBPoQlL/RH/yHpLaIeD3hz5C90bv9+4cuONPhvXIsBnr6T+insEjNMdo\n/hzhGQd4ZMZEj/xpGcH/ltjohtXDKU+ZzidukE3iEPphH37eI3kWkcY/bkMJzHuj\nF2idqDwRcl/aREb6AHRgibcFxrEEasJwYz7cyyJ4icKp0+YsUKT9jwOx01oWV5uX\nET6iPr67AgMBAAECggEANqEYBKGqMMwuC4+3zIGUhPfGVEHsEEhM7RB7/Cs5lDZ0\nvYp2Voon4E/zFwzt5PzQzThKQSk6XLEI0UUskpWIUtm+G11UaLLosjbvN6VqPmg4\nvbiRU3En2XsnlSZ4Y9kO+Id370CTHvVPkxqosntu+twZsinyPDsWJ4rPLIquWTRt\nXM8SmwDC399ZYf/dJ03QFQ081ifLfC03G3NdLHKxR3KbxvqfnmmcvcUtUJ1WC21y\nUIh+0k1KyxQtjJVocV1KcBbXykb9JQZOLh0DHKETHe8h0A2mo4zleXY850kpP0Z/\nz7pbuTjN3pplenVuJsz7/14BEomzKrYroQ+yV+7POQKBgQDLuZET11QU8fNyVxbE\nkiB3//7Mjte3ZZRwfmssFw3u5Dbja0fo9fKU+eatMDLlVhhC5jgTQENXiTtvfaWP\nBZZvhgTLoL+Ng3Jww0TUJSs7K7R5DAY50ESaaE0cGvv8NWb2qDbjflsMBAWRslKU\n62JTVdVAgoj1r3IYefwhHsLziQKBgQC6EDBqhVqMFAWNE5ev7XiCuhqHSNs/gRcc\ntxUDAySeudx8uJKUPE1Y717hE0BnULwOWRuOhtJErK/zSJ51SEc0VYRo4cRfNHag\nYuNlUrcpyUOebXp+ScKzhy0TIejZNuF1vC0E5mxUBFxBIqvYnLUC1TxkNDiyxtYy\n9WhhrKgbIwKBgQCTB/uXyUmq0DB2bjpFZn0+fiij89fmSc7HHcY1jPIGXvjqS2wb\nyx3nvTBqACZLdEaQSd1gr3mqvKWDwrfxMAQxuxTM7dgxxxOaJKQRRD4eN13KGw6H\nPTO2CN7WEPeaP+Ru0lrC91e4pVJro7qMNhHBuWnuZAd64cPDvI5mTPBAmQKBgEfz\n+sU2zM1e8MadzQs7yl7DmX63rhHg2g9Avd9sV70KIzoYJpcsuryp1Qc1arKJhjAG\nRaHYgXgNT/3FF4JDcUXLzGjC5i3rG/TqSQXl9u8x5fReYgB0hdbnb4b2lhVqI8Zj\n/wTmFv5msUZ/IfWipF10GOanS0XXnv4V6UfcfSYBAoGAcurS2f4T99sVGLycSxcC\nFPH355fMbpdj8dCh81buiZw/x/cMNy6xFoburcoe74S/TXhUVzFq9Gwr4smc7zyI\nYsHVrMf+6JUCJS7mClGxtq6xAmDfMrLPo9vUasf+RrgYS8Z6qpB5PBdCQZk6fjk1\n2SN9h2smg1VBs0te472MBzI=\n-----END PRIVATE KEY-----\n",
+  "client_email": "vug-report-streamlit@sturdy-tuner-393016.iam.gserviceaccount.com",
+  "client_id": "102834317142409407540",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/vug-report-streamlit%40sturdy-tuner-393016.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
