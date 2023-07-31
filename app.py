@@ -422,6 +422,7 @@ def main():
             download_link = get_binary_file_downloader_html(pdf_buffer, "Generated_Report.pdf", "Click here to download the report!")
             st.markdown(download_link, unsafe_allow_html=True)
         
+        
 
         # def add_email_to_csv(email):
         #     file_exists = os.path.isfile("emails.csv")
