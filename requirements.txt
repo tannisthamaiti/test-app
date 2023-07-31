@@ -1,0 +1,10 @@
+streamlit
+Pillow
+matplotlib
+numpy
+sqlite3
+pandas
+reportlab
+google-auth
+oauth2client
+gspread
