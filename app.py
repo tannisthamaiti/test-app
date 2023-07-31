@@ -1,4 +1,3 @@
-import cv2
 import streamlit as st
 from PIL import Image
 import matplotlib.pyplot as plt
@@ -16,6 +15,10 @@ import csv
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 import os
+
+os.environ["PYOPENGL_PLATFORM"] = "osmesa"
+import cv2
+
 
 def get_binary_file_downloader_html(buffer, filename, link_text):
     b64 = base64.b64encode(buffer.getvalue()).decode()
@@ -423,6 +426,8 @@ def main():
             st.markdown(download_link, unsafe_allow_html=True)
         
         
+        # CREDS_FILE = 'sturdy-tuner-393016-49517332d8cc.json'
+        # SPREADSHEET_ID = '1HOY6C_agR5GtlGARll6MSN-e3_7thqs3eN638Hh_GIU'
 
         # def add_email_to_csv(email):
         #     file_exists = os.path.isfile("emails.csv")
