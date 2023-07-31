@@ -1,3 +1,4 @@
+import cv2
 import streamlit as st
 from PIL import Image
 import matplotlib.pyplot as plt
@@ -61,7 +62,6 @@ def display_graphs():
 
     return fig
 
-# ... Rest of your code ...
 
 
 def create_database():
@@ -163,9 +163,15 @@ def generate_report(image, vug_percent, corrected_vug, graphs):
     buffer.seek(0)
     return buffer
 
+def load_image_from_depth(selected_depth):
+    image_path = os.path.join("data", f"{selected_depth}.png")
+    return Image.open(image_path)
 
 # Main Streamlit app
 def main():
+    
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    os.chdir(script_dir)
     # st.title("Geologist Vug% Report")
     st.set_page_config(page_title="Geologist Vug% Report", layout="wide")
     st.markdown(
@@ -263,7 +269,7 @@ def main():
 
         # Dropdown to select depth and zoom in
         with col1:
-            depth = st.selectbox("Select Depth:", ["2635-2640 m", "2640-2645 m", "2645-2650 m","2650-2655 m","2655- 2660 m"])
+            selected_depth = st.selectbox("Select Depth:", ["2635-2640m", "2640-2645m", "2645-2650m","2650-2655m","2655-2660m"])
 
         # Dropdowns to select color and contrast (dummy data)
         with col2:
@@ -284,11 +290,62 @@ def main():
         vug_options = ["Otsu","Adaptive Filtering"]
         vug_filter = st.selectbox("Select vug:",vug_options)
         # Display the graphs based on selections
-        st.header("Graphs")
-        fig = display_graphs()
-        st.pyplot(fig)
+        # st.header("Graphs")
+        # fig = display_graphs()
+        # st.pyplot(fig)
         
+        img = np.array(image)
+        import cv2 as cv
+        from matplotlib import pyplot as plt
+        # Convert the image to grayscale
+        img_gray = cv.cvtColor(img, cv.COLOR_RGB2GRAY)
 
+        # Perform the image processing as before
+        img_gray = cv.medianBlur(img_gray, 5)
+        ret, th1 = cv.threshold(img_gray, 127, 255, cv.THRESH_BINARY)
+        th2 = cv.adaptiveThreshold(img_gray, 255, cv.ADAPTIVE_THRESH_MEAN_C,
+                                   cv.THRESH_BINARY, 11, 2)
+        th3 = cv.adaptiveThreshold(img_gray, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C,
+                                   cv.THRESH_BINARY, 11, 2)
+
+        # Calculate Otsu's thresholding result
+        _, th_otsu = cv.threshold(img_gray, 0, 255, cv.THRESH_BINARY + cv.THRESH_OTSU)
+
+        titles = ['Original Image', 'Global Thresholding (v = 127)',
+                  'Adaptive Mean Thresholding', 'Adaptive Gaussian Thresholding', "Otsu's Thresholding"]
+        images = [img_gray, th1, th2, th3, th_otsu]
+
+        # Define the target size for the resized images
+        target_width = 200
+        target_height = 300
+
+        # Create a button to show the thresholding results
+        if st.button("Show Thresholding Results", key="show_results_button"):
+            st.write("Thresholding Results:")
+            for i in range(5):
+                # Resize the image to the target size
+                resized_image = cv2.resize(images[i], (target_width, target_height))
+
+                # Create a smaller plot by setting the figsize parameter
+                plt.figure(figsize=(8, 6))
+                plt.imshow(resized_image, 'gray')
+                plt.title(titles[i])
+                plt.xticks([])
+                plt.yticks([])
+
+                # Save the plot to a BytesIO buffer
+                buffer = BytesIO()
+                plt.savefig(buffer, format="png")
+                buffer.seek(0)
+
+                # Encode the image to base64
+                image_base64 = base64.b64encode(buffer.read()).decode()
+
+                # Create an HTML link that opens the image in a new browser tab
+                image_link = f'<a href="data:image/png;base64,{image_base64}" target="_blank"><img src="data:image/png;base64,{image_base64}" /></a>'
+                st.write(image_link, unsafe_allow_html=True)
+        
+        
         chart_data = pd.DataFrame(
             np.random.randn(20, 3),
             columns=['a', 'b', 'c'])
@@ -297,10 +354,15 @@ def main():
         # area_chart
         # line_chart
 
-        st.header("Predicted Vug for")
-        st.markdown(f'{depth}')
-        # display image.png
-        st.image('image.png', width=50)
+        # st.header("Predicted Vug for")
+        # st.markdown(f'{depth}')
+        # # display image.png
+        # st.image('image.png', width=50)
+        # st.header("Predicted Vug for : ")
+        st.header(
+            f"Predicted Vug% for the entire well: {selected_depth}"
+            )
+        st.image(load_image_from_depth(selected_depth),width=50)
         
         # Buttons to accept, reject, and flag
         st.header("Actions")
@@ -360,9 +422,6 @@ def main():
             download_link = get_binary_file_downloader_html(pdf_buffer, "Generated_Report.pdf", "Click here to download the report!")
             st.markdown(download_link, unsafe_allow_html=True)
         
-        
-        # CREDS_FILE = 'sturdy-tuner-393016-49517332d8cc.json'
-        # SPREADSHEET_ID = '1HOY6C_agR5GtlGARll6MSN-e3_7thqs3eN638Hh_GIU'
 
         # def add_email_to_csv(email):
         #     file_exists = os.path.isfile("emails.csv")
