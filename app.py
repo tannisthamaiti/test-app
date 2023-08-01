@@ -349,11 +349,11 @@ def main():
                 st.write(image_link, unsafe_allow_html=True)
         
         
-        chart_data = pd.DataFrame(
-            np.random.randn(20, 3),
-            columns=['a', 'b', 'c'])
+        # chart_data = pd.DataFrame(
+        #     np.random.randn(20, 3),
+        #     columns=['a', 'b', 'c'])
 
-        st.area_chart(chart_data)
+        # st.area_chart(chart_data)
         # area_chart
         # line_chart
 
