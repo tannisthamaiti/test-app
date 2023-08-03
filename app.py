@@ -15,6 +15,9 @@ import csv
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 import os
+import time
+
+
 
 os.environ["PYOPENGL_PLATFORM"] = "osmesa"
 import cv2
@@ -43,6 +46,14 @@ def display_image(image, zoom_factor):
     new_height = int(height * zoom_factor)
     resized_image = image.resize((new_width, new_height))
     st.image(resized_image)
+    
+def display_image1(image, zoom_factor):
+    image = Image.open('contours/image.png')
+    width, height = image.size
+    new_width = int(width * zoom_factor)
+    new_height = int(height * zoom_factor)
+    resized_image = image.resize((new_width, new_height))
+    st.image(resized_image, width=new_width)
 
 # Function to estimate vug% for the entire well (dummy data)
 def estimate_vug_percent(image):
@@ -166,16 +177,19 @@ def generate_report(image, vug_percent, corrected_vug, graphs):
     buffer.seek(0)
     return buffer
 
+def generate_dummy_data(size=1000):
+    return np.random.randn(size)
+
 def load_image_from_depth(selected_depth):
     image_path = os.path.join("data", f"{selected_depth}.png")
     return Image.open(image_path)
+
 
 # Main Streamlit app
 def main():
     
     script_dir = os.path.dirname(os.path.abspath(__file__))
     os.chdir(script_dir)
-    # st.title("Geologist Vug% Report")
     st.set_page_config(page_title="Geologist Vug% Report", layout="wide")
     st.markdown(
         """
@@ -246,19 +260,16 @@ def main():
         unsafe_allow_html=True,
     )
     container_style = "padding: 15px; border-radius: 5px; margin-bottom: 10px; color: #FFFFFF; font-weight: bold;"
-    # Image upload section
+ 
     st.header("Automatic vug detection from FMI logs")
     uploaded_file = st.file_uploader("Choose a dlis file....", type=["jpg", "jpeg", "png"])
     if uploaded_file is not None:
-        # Display the uploaded image
         image = Image.open(uploaded_file)
         st.subheader("Uploaded Image")
-        # display_image(image, 1.0)
         zoom_factor = st.slider("Zoom Factor:", 0.1, 3.0, 0.16)
         st.subheader("Zoomed-in Image:")
         display_image(image, zoom_factor)
 
-        # Display estimated vug%
         vug_percent = estimate_vug_percent(image)
         st.markdown(
         f'<div style="background-color: #edf6f9; {container_style} font-family: Inter; color: black;">'
@@ -267,14 +278,11 @@ def main():
         unsafe_allow_html=True,
     )
     
-        # Dropdown section
         col1, col2, col3 = st.columns(3)
 
-        # Dropdown to select depth and zoom in
         with col1:
             selected_depth = st.selectbox("Select Depth:", ["2635-2640m", "2640-2645m", "2645-2650m","2650-2655m","2655-2660m"])
 
-        # Dropdowns to select color and contrast (dummy data)
         with col2:
             color_options = ["Red", "Green", "Blue"]
             selected_color = st.selectbox("Select Color Filter:", color_options)
@@ -283,32 +291,20 @@ def main():
             contrast_options = ["Low", "Medium", "High"]
             selected_contrast = st.selectbox("Select Contrast:", contrast_options)
 
-        # Apply color and contrast adjustments to the image
         modified_image = modify_image(image, selected_color, selected_contrast)
 
-        # Display the modified image
         st.subheader("Modified Image:")
         display_image(modified_image, zoom_factor)
 
-        # vug_options = ["Otsu","Adaptive Filtering"]
-        # vug_filter = st.selectbox("Select vug:",vug_options)
         
         img = np.array(image)
         import cv2 as cv
         from matplotlib import pyplot as plt
-        # Convert the image to grayscale
         img_gray = cv.cvtColor(img, cv.COLOR_RGB2GRAY)
 
-        # Perform the image processing as before
         img_gray = cv.medianBlur(img_gray, 5)
-        # ret, th1 = cv.threshold(img_gray, 127, 255, cv.THRESH_BINARY)
         th2 = cv.adaptiveThreshold(img_gray, 255, cv.ADAPTIVE_THRESH_MEAN_C,
                                    cv.THRESH_BINARY, 11, 2)
-        # th3 = cv.adaptiveThreshold(img_gray, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C,
-        #                            cv.THRESH_BINARY, 11, 2)
-
-        # Calculate Otsu's thresholding result
-        # _, th_otsu = cv.threshold(img_gray, 0, 255, cv.THRESH_BINARY + cv.THRESH_OTSU)
 
         titles = ['Original Image',
                   'Adaptive Mean Thresholding', "Otsu's Thresholding"]
@@ -344,22 +340,12 @@ def main():
                 image_link = f'<a href="data:image/png;base64,{image_base64}" target="_blank"><img src="data:image/png;base64,{image_base64}" /></a>'
                 st.write(image_link, unsafe_allow_html=True)
         
-        #otsu
         img = np.array(image)
         import cv2 as cv
         from matplotlib import pyplot as plt
-        # Convert the image to grayscale
         img_gray = cv.cvtColor(img, cv.COLOR_RGB2GRAY)
 
-        # Perform the image processing as before
         img_gray = cv.medianBlur(img_gray, 5)
-        # ret, th1 = cv.threshold(img_gray, 127, 255, cv.THRESH_BINARY)
-        # th2 = cv.adaptiveThreshold(img_gray, 255, cv.ADAPTIVE_THRESH_MEAN_C,
-                                #    cv.THRESH_BINARY, 11, 2)
-        # th3 = cv.adaptiveThreshold(img_gray, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C,
-        #                            cv.THRESH_BINARY, 11, 2)
-
-        # Calculate Otsu's thresholding result
         _, th_otsu = cv.threshold(img_gray, 0, 255, cv.THRESH_BINARY + cv.THRESH_OTSU)
 
         titles = ['Original Image', "Otsu's Thresholding"]
@@ -412,6 +398,59 @@ def main():
             f"Predicted Vug% for the entire well: {selected_depth}"
             )
         st.image(load_image_from_depth(selected_depth),width=50)
+        
+        # Add two buttons A and B
+        if st.button("Histogram"):
+            with st.spinner("Gathering information..."):
+                # Simulate some data processing
+                time.sleep(1)
+            with st.spinner("Processing data..."):
+                # Simulate some data processing
+                time.sleep(1)
+
+            st.success("Done!")
+
+            # Show the actual content
+            st.subheader("Histogram")
+
+            # Generate dummy data
+            data = generate_dummy_data()
+
+                    # Reduce the size of the plot
+            plt.figure(figsize=(4, 2))  # Specify the size of the figure here (width, height)
+
+            # Create the histogram-like bar plot with smaller size
+            counts, bins, patches = plt.hist(data, bins=10, alpha=0.7, color='b', edgecolor='black')
+
+            # Customize the appearance
+            plt.xlabel("Value")
+            plt.ylabel("Frequency")
+            plt.title("Histogram Visualization")
+            plt.grid(axis='y', linestyle='--', alpha=0.7)
+
+            # Show the plot using Streamlit
+            st.pyplot(plt)
+
+            # Optionally, you can also display the raw counts as a table
+            # st.subheader("Raw Counts")
+            # counts_table = np.vstack((bins[:-1], bins[1:], counts)).T
+            # st.table(counts_table)
+                    
+
+        if st.button("FMI contours"):
+            # with st.spinner("Gathering information..."):
+            #     # Simulate some data processing
+            #     time.sleep(1)
+            # with st.spinner("Processing data..."):
+            #     # Simulate some data processing
+            #     time.sleep(1)
+            #load image.png from contours
+            # st.image('contours/image.png', width=100)
+            zoom_factors = st.slider("Zoom:", 0.1, 3.0, 0.16)
+            display_image1('contours/image.png', zoom_factors)
+            # st.success("Done!")
+
+        
         
         # Buttons to accept, reject, and flag
         st.header("Actions")
