@@ -15,7 +15,7 @@ import csv
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 import os
-import time
+# import time
 
 
 
@@ -401,12 +401,12 @@ def main():
         
         # Add two buttons A and B
         if st.button("Histogram"):
-            with st.spinner("Gathering information..."):
-                # Simulate some data processing
-                time.sleep(1)
-            with st.spinner("Processing data..."):
-                # Simulate some data processing
-                time.sleep(1)
+            # with st.spinner("Gathering information..."):
+            #     # Simulate some data processing
+            #     time.sleep(1)
+            # with st.spinner("Processing data..."):
+            #     # Simulate some data processing
+            #     time.sleep(1)
 
             st.success("Done!")
 
