@@ -48,12 +48,12 @@ def display_image(image, zoom_factor):
     st.image(resized_image)
     
 def display_image1(image, zoom_factor):
-    image = Image.open('contours/image.png')
     width, height = image.size
     new_width = int(width * zoom_factor)
     new_height = int(height * zoom_factor)
     resized_image = image.resize((new_width, new_height))
-    st.image(resized_image, width=new_width)
+    with st.beta_container():
+        st.image(resized_image)
 
 # Function to estimate vug% for the entire well (dummy data)
 def estimate_vug_percent(image):
@@ -184,8 +184,10 @@ def load_image_from_depth(selected_depth):
     image_path = os.path.join("data", f"{selected_depth}.png")
     return Image.open(image_path)
 
+def load_image_for_contour(selected_depth):
+    image_path = os.path.join("contours", f"{selected_depth}.png")
+    return Image.open(image_path)
 
-# Main Streamlit app
 def main():
     
     script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -306,209 +308,177 @@ def main():
         th2 = cv.adaptiveThreshold(img_gray, 255, cv.ADAPTIVE_THRESH_MEAN_C,
                                    cv.THRESH_BINARY, 11, 2)
 
+        
         titles = ['Original Image',
-                  'Adaptive Mean Thresholding', "Otsu's Thresholding"]
+                  'Detect Contours', ""]
         images = [img_gray, th2]
 
         # Define the target size for the resized images
         target_width = 200
         target_height = 300
 
-        # Create a button to show the thresholding results
-        if st.button("Show Adaptive Filtering", key="show_results_button"):
-            st.write("Thresholding Results:")
-            for i in range(2):
-                # Resize the image to the target size
-                resized_image = cv2.resize(images[i], (target_width, target_height))
-
-                # Create a smaller plot by setting the figsize parameter
-                plt.figure(figsize=(8, 6))
-                plt.imshow(resized_image, 'gray')
-                plt.title(titles[i])
-                plt.xticks([])
-                plt.yticks([])
-
-                # Save the plot to a BytesIO buffer
-                buffer = BytesIO()
-                plt.savefig(buffer, format="png")
-                buffer.seek(0)
-
-                # Encode the image to base64
-                image_base64 = base64.b64encode(buffer.read()).decode()
-
-                # Create an HTML link that opens the image in a new browser tab
-                image_link = f'<a href="data:image/png;base64,{image_base64}" target="_blank"><img src="data:image/png;base64,{image_base64}" /></a>'
-                st.write(image_link, unsafe_allow_html=True)
+        if st.button("Detect Contours", key="show_results_button"):
+                st.write("Countour Results:")
+                image_path = 'contours/image.png'
+                st.image(load_image_for_contour(selected_depth),width=300)
         
-        img = np.array(image)
-        import cv2 as cv
-        from matplotlib import pyplot as plt
-        img_gray = cv.cvtColor(img, cv.COLOR_RGB2GRAY)
-
-        img_gray = cv.medianBlur(img_gray, 5)
-        _, th_otsu = cv.threshold(img_gray, 0, 255, cv.THRESH_BINARY + cv.THRESH_OTSU)
-
-        titles = ['Original Image', "Otsu's Thresholding"]
-        images = [img_gray, th_otsu]
-
-        # Define the target size for the resized images
-        target_width = 200
-        target_height = 300
-
-        # Create a button to show the thresholding results
-        if st.button("Show Otsu Filtering", key="show_results_buttons"):
-            st.write("Thresholding Results:")
-            for i in range(2):
-                # Resize the image to the target size
-                resized_image = cv2.resize(images[i], (target_width, target_height))
-
-                # Create a smaller plot by setting the figsize parameter
-                plt.figure(figsize=(8, 6))
-                plt.imshow(resized_image, 'gray')
-                plt.title(titles[i])
-                plt.xticks([])
-                plt.yticks([])
-
-                # Save the plot to a BytesIO buffer
-                buffer = BytesIO()
-                plt.savefig(buffer, format="png")
-                buffer.seek(0)
-
-                # Encode the image to base64
-                image_base64 = base64.b64encode(buffer.read()).decode()
-
-                # Create an HTML link that opens the image in a new browser tab
-                image_link = f'<a href="data:image/png;base64,{image_base64}" target="_blank"><img src="data:image/png;base64,{image_base64}" /></a>'
-                st.write(image_link, unsafe_allow_html=True)
+        col1, col2, col3 = st.columns(3)
         
-        # chart_data = pd.DataFrame(
-        #     np.random.randn(20, 3),
-        #     columns=['a', 'b', 'c'])
+        # with col1:
+        #     if st.button("Detect Contours", key="show_results_button"):
+        #         st.write("Thresholding Results:")
+        #         image_path = 'contours/image.png'
+        #         image = Image.open(image_path)
 
-        # st.area_chart(chart_data)
-        # area_chart
-        # line_chart
-
-        # st.header("Predicted Vug for")
-        # st.markdown(f'{depth}')
-        # # display image.png
-        # st.image('image.png', width=50)
-        # st.header("Predicted Vug for : ")
-        st.header(
-            f"Predicted Vug% for the entire well: {selected_depth}"
-            )
-        st.image(load_image_from_depth(selected_depth),width=50)
-        
-        # Add two buttons A and B
-        if st.button("Histogram"):
-            # with st.spinner("Gathering information..."):
-            #     # Simulate some data processing
-            #     time.sleep(1)
-            # with st.spinner("Processing data..."):
-            #     # Simulate some data processing
-            #     time.sleep(1)
-
-            st.success("Done!")
-
-            # Show the actual content
-            st.subheader("Histogram")
-
-            # Generate dummy data
-            data = generate_dummy_data()
-
-                    # Reduce the size of the plot
-            plt.figure(figsize=(4, 2))  # Specify the size of the figure here (width, height)
-
-            # Create the histogram-like bar plot with smaller size
-            counts, bins, patches = plt.hist(data, bins=10, alpha=0.7, color='b', edgecolor='black')
-
-            # Customize the appearance
-            plt.xlabel("Value")
-            plt.ylabel("Frequency")
-            plt.title("Histogram Visualization")
-            plt.grid(axis='y', linestyle='--', alpha=0.7)
-
-            # Show the plot using Streamlit
-            st.pyplot(plt)
-
-            # Optionally, you can also display the raw counts as a table
-            # st.subheader("Raw Counts")
-            # counts_table = np.vstack((bins[:-1], bins[1:], counts)).T
-            # st.table(counts_table)
-                    
-
-        if st.button("FMI contours"):
-            # with st.spinner("Gathering information..."):
-            #     # Simulate some data processing
-            #     time.sleep(1)
-            # with st.spinner("Processing data..."):
-            #     # Simulate some data processing
-            #     time.sleep(1)
-            #load image.png from contours
-            # st.image('contours/image.png', width=100)
-            zoom_factors = st.slider("Zoom:", 0.1, 3.0, 0.16)
-            display_image1('contours/image.png', zoom_factors)
-            # st.success("Done!")
-
+        #         zoom_factors = st.slider("Zoom:", 0.1, 3.0, 0.16)
+        #         display_image(image, float(zoom_factors))
         
         
-        # Buttons to accept, reject, and flag
+        with col1:
+            img = np.array(image)
+            import cv2 as cv
+            from matplotlib import pyplot as plt
+            img_gray = cv.cvtColor(img, cv.COLOR_RGB2GRAY)
+
+            img_gray = cv.medianBlur(img_gray, 5)
+            _, th_otsu = cv.threshold(img_gray, 0, 255, cv.THRESH_BINARY + cv.THRESH_OTSU)
+
+            titles = ['Original Image', "Calculate Vugs"]
+            images = [img_gray, th_otsu]
+
+            # Define the target size for the resized images
+            target_width = 200
+            target_height = 300
+
+            # Create a button to show the thresholding results
+            if st.button("Calculate Vugs", key="show_results_buttons"):
+                st.write("Thresholding Results:")
+                # commented code -> otsu
+                # for i in range(2):
+                #     # Resize the image to the target size
+                #     resized_image = cv2.resize(images[i], (target_width, target_height))
+
+                #     # Create a smaller plot by setting the figsize parameter
+                #     plt.figure(figsize=(8, 6))
+                #     plt.imshow(resized_image, 'gray')
+                #     plt.title(titles[i])
+                #     plt.xticks([])
+                #     plt.yticks([])
+
+                #     # Save the plot to a BytesIO buffer
+                #     buffer = BytesIO()
+                #     plt.savefig(buffer, format="png")
+                #     buffer.seek(0)
+
+                #     # Encode the image to base64
+                #     image_base64 = base64.b64encode(buffer.read()).decode()
+
+                #     # Create an HTML link that opens the image in a new browser tab
+                #     image_link = f'<a href="data:image/png;base64,{image_base64}" target="_blank"><img src="data:image/png;base64,{image_base64}" /></a>'
+                #     st.write(image_link, unsafe_allow_html=True)
+                st.markdown(f"Predicted Vug% for the entire well: {selected_depth}")
+                st.image(load_image_from_depth(selected_depth),width=50)
+        
+        with col2:
+            if st.button("Histogram of size of vugs"):
+                # with st.spinner("Gathering information..."):
+                #     # Simulate some data processing
+                #     time.sleep(1)
+                # with st.spinner("Processing data..."):
+                #     # Simulate some data processing
+                #     time.sleep(1)
+
+                st.success("Done!")
+                st.subheader("Histogram")
+
+                data = generate_dummy_data()
+
+
+                plt.figure(figsize=(4, 2))
+
+                counts, bins, patches = plt.hist(data, bins=10, alpha=0.7, color='b', edgecolor='black')
+
+                # Customize the appearance
+                plt.xlabel("Value")
+                plt.ylabel("Frequency")
+                plt.title("Histogram Visualization")
+                plt.grid(axis='y', linestyle='--', alpha=0.7)
+
+                st.pyplot(plt)
+
+        
+
         st.header("Actions")
 
-        # Side-by-side buttons
         col1, col2, col3 = st.columns(3)
 
+        # if col1.button("Accept"):
+        #     st.success("Vug% Accepted!")
+
+        # create_database()
+
+        # if col2.button("Reject"):
+        #     st.warning("Vug% Rejected!")
+        #     st.subheader("Enter Estimated Vug%:")
+        #     corrected_vug = st.number_input("Vug%", value=0, min_value=0, max_value=100)
+        #     submit_reject = st.button("Submit Rejection", key="submit_reject")
+        #     if submit_reject:
+        #         image_id = uploaded_file.name
+        #         save_vug_percent_to_db(image_id, corrected_vug)
+        #         st.info(f"Data saved in the database: Image ID: {image_id}, Corrected Vug%: {corrected_vug}")
+
+        # if col3.button("Flag"):
+        #     st.info("Image, Well Name, and Reported Vug% flagged for verification.")
+            
+        
+        
         if col1.button("Accept"):
-            # Handle Accept action here
             st.success("Vug% Accepted!")
-
+            image_id = uploaded_file.name
+            save_vug_percent_to_db(image_id, vug_percent)
         create_database()
-
         if col2.button("Reject"):
-            # Handle Reject action here
             st.warning("Vug% Rejected!")
             st.subheader("Enter Estimated Vug%:")
             corrected_vug = st.number_input("Vug%", value=0, min_value=0, max_value=100)
-            submit_reject = st.button("Submit Rejection", key="submit_reject")  # Unique key for the button
+            submit_reject = st.button("Submit Rejection", key="submit_reject")
             if submit_reject:
-                # Save the estimated vug% to the SQLite3 database
-                image_id = uploaded_file.name  # Make sure 'uploaded_file' is accessible here
+                image_id = uploaded_file.name
                 save_vug_percent_to_db(image_id, corrected_vug)
                 st.info(f"Data saved in the database: Image ID: {image_id}, Corrected Vug%: {corrected_vug}")
 
         if col3.button("Flag"):
-            # Handle Flag action here
             st.info("Image, Well Name, and Reported Vug% flagged for verification.")
-            
+
         
 
         # Generate report
-        st.header("Generate Report")
-        if st.button("Generate Report"):
-            # Get the corrected vug% if applicable
-            corrected_vug = None
-            if col2.button("Reject", key="reject_button"):
-                # Handle Reject action here
-                st.warning("Vug% Rejected!")
-                st.subheader("Enter Estimated Vug%:")
-                corrected_vug = st.number_input("Vug%", value=0, min_value=0, max_value=100)
-                submit_reject = st.button("Submit Rejection", key="submit_reject")  # Unique key for the button
-                if submit_reject:
-                    # Save the estimated vug% to the SQLite3 database
-                    image_id = uploaded_file.name  # Make sure 'uploaded_file' is accessible here
-                    save_vug_percent_to_db(image_id, corrected_vug)
-                    st.info(f"Data saved in the database: Image ID: {image_id}, Corrected Vug%: {corrected_vug}")
+        # st.header("Generate Report")
+        # if st.button("Generate Report"):
+        #     # Get the corrected vug% if applicable
+        #     corrected_vug = None
+        #     if col2.button("Reject", key="reject_button"):
+        #         # Handle Reject action here
+        #         st.warning("Vug% Rejected!")
+        #         st.subheader("Enter Estimated Vug%:")
+        #         corrected_vug = st.number_input("Vug%", value=0, min_value=0, max_value=100)
+        #         submit_reject = st.button("Submit Rejection", key="submit_reject")  # Unique key for the button
+        #         if submit_reject:
+        #             # Save the estimated vug% to the SQLite3 database
+        #             image_id = uploaded_file.name  # Make sure 'uploaded_file' is accessible here
+        #             save_vug_percent_to_db(image_id, corrected_vug)
+        #             st.info(f"Data saved in the database: Image ID: {image_id}, Corrected Vug%: {corrected_vug}")
 
 
-            # Generate graphs
-            graphs = [display_graphs() for _ in range(3)]  # Modify the range based on the number of graphs you want
+        #     # Generate graphs
+        #     graphs = [display_graphs() for _ in range(3)]  # Modify the range based on the number of graphs you want
 
-            # Generate the PDF report
-            pdf_buffer = generate_report(uploaded_file, vug_percent, corrected_vug, graphs)
+        #     # Generate the PDF report
+        #     pdf_buffer = generate_report(uploaded_file, vug_percent, corrected_vug, graphs)
 
-            # Provide the link to download the PDF
-            download_link = get_binary_file_downloader_html(pdf_buffer, "Generated_Report.pdf", "Click here to download the report!")
-            st.markdown(download_link, unsafe_allow_html=True)
+        #     # Provide the link to download the PDF
+        #     download_link = get_binary_file_downloader_html(pdf_buffer, "Generated_Report.pdf", "Click here to download the report!")
+        #     st.markdown(download_link, unsafe_allow_html=True)
         
         
         # CREDS_FILE = 'sturdy-tuner-393016-49517332d8cc.json'
