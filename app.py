@@ -192,7 +192,7 @@ def main():
     
     script_dir = os.path.dirname(os.path.abspath(__file__))
     os.chdir(script_dir)
-    st.set_page_config(page_title="Geologist Vug% Report", layout="wide")
+    st.set_page_config(page_title="Vug Detection", page_icon="🤖", layout="wide", )
     st.markdown(
         """
         <style>
