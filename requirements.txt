@@ -5,3 +5,7 @@ pandas
 tqdm
 scikit-learn
 dlisio
+tqdm
+opencv-python
+scipy
+seaborn
