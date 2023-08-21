@@ -8,13 +8,37 @@ from sklearn.preprocessing import MinMaxScaler
 import copy
 import os
 from dlisio import dlis
-
-
-    
-    
-
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
+import seaborn as sns
 
     
+    
+
+
+def generate_pdf_report(original_plot_path):
+    pdf_path = "report.pdf"  # Path where the PDF report will be saved
+    c = canvas.Canvas(pdf_path, pagesize=letter)
+
+    # Add a title to the report
+    c.setFont("Helvetica-Bold", 16)
+    c.drawString(100, 750, "User Journey Report")
+
+    # Draw the original FMI plot
+    c.drawImage(original_plot_path, 100, 550, width=400, height=300)
+
+    # # Draw the contour plot
+    # c.drawImage(contour_plot_path, 100, 250, width=400, height=300)
+
+    # # Draw the histogram plot
+    # c.drawImage(histogram_plot_path, 100, 50, width=400, height=300)
+
+    # Save the PDF and close the canvas
+    c.save()
+
+    return pdf_path
+
+ 
 def main():
     script_dir = os.path.dirname(os.path.abspath(__file__))
     os.chdir(script_dir)
@@ -22,6 +46,7 @@ def main():
     st.header("Automatic vug detection from FMI logs")
 
     uploaded_file = st.file_uploader("Upload DLIS File", type=["dlis"])
+    zone_start_selected = 0
     
     if uploaded_file is not None:
         st.subheader("File uploaded successfully")
@@ -156,6 +181,7 @@ def main():
         
         
         contour_x, contour_y = [], []
+        total_filtered_vugs =[]
         for one_meter_zone_start in tqdm(np.arange(start,end, 1)):
             one_meter_zone_end = one_meter_zone_start + 1
             output = get_one_meter_fmi_and_GT(one_meter_zone_start, one_meter_zone_end, 
@@ -189,6 +215,9 @@ def main():
                                                                                                                         filtered_contour_, 
                                                                                                                         filtered_vugs_, 
                                                                                                                         threshold = mean_diff_thresh)
+                
+                # total vugs count                                                                                                      
+                total_filtered_vugs.append(filtered_vugs_)
                 for pts in filtered_contour_:
                     x = pts[:, 0, 0]
                     y = pts[:, 0, 1]
@@ -204,7 +233,8 @@ def main():
                 pred_df = pd.concat([pred_df, detected_vugs_percentage], axis=0)
             height_idx+=height
 
-                
+        
+               
         vugs_threshold = 1.5
         vicinity_threshold = 1
         per_page_depth_zone = 10 # if selected 6m then change to 6 if 10 then change to 10 1457.8 1498.2 (1498.8)
@@ -224,7 +254,7 @@ def main():
         img_idx = 0
         for zone_start in tqdm(np.arange(start, end, per_page_depth_zone)):
             zone_end = zone_start + per_page_depth_zone
-
+            zone_start_selected = zone_start
             temp_mask = (tdep_array_doi>=zone_start) & (tdep_array_doi<=zone_end)
             fmi_zone = fmi_array_doi[temp_mask]
             pred_df_zone = pred_df_copy[(pred_df_copy.Depth>=zone_start) & (pred_df_copy.Depth<=zone_end)]
@@ -270,12 +300,20 @@ def main():
 
             plt.tight_layout()
             st.pyplot(plt)
-            # plt.savefig(f"whole/{zone_start}.png", dpi=400, bbox_inches='tight')
+            plt.savefig(f"whole/{zone_start}.png", dpi=400, bbox_inches='tight')
         #     plt.close()
             # break
             img_idx+=img_height
             # if img_idx>=5000:
             #     break
+        
+        
+        if st.button('Show Statistical Analysis'):
+            filtered_vugs = [i['area'] for filtered_vugs_ in total_filtered_vugs for i in filtered_vugs_]
+
+            fig1, ax = plt.subplots()
+            sns.histplot(filtered_vugs, ax=ax)
+            st.pyplot(fig1)
         
         st.divider()    
         col1,col2 = st.columns(2)
@@ -334,13 +372,14 @@ def main():
             pred_df = pd.DataFrame()
             c = 0
             height_idx = 0
-
-
-            
-            
+            start = 2739.02 # what user has start selected
+            end = 2810.02   # what user has end selected
             contour_x, contour_y = [], []
+            # total vugs count 
+            total_filtered_vugs =[]
             for one_meter_zone_start in tqdm(np.arange(start,end, 1)):
                 one_meter_zone_end = one_meter_zone_start + 1
+            #     print(one_meter_zone_start, one_meter_zone_end)
                 output = get_one_meter_fmi_and_GT(one_meter_zone_start, one_meter_zone_end, 
                                                 tdep_array, fmi_array, well_radius_doi, gt)
                 fmi_array_one_meter_zone, tdep_array_one_meter_zone, well_radius_one_meter_zone, gtZone = output
@@ -352,17 +391,19 @@ def main():
                     thresold_img = apply_adaptive_thresholding(fmi_array_one_meter_zone, diff_thresh, block_size = 21, c = c_threshold)
                     holeR, pixLen = well_radius_one_meter_zone.mean()*100, (np.diff(tdep_array_one_meter_zone)*100).mean()
                         
-                    
+                        # get contours and centroids from the thresholded image of the derived one meter zone
                     contours, centroids, vugs = get_contours(thresold_img, depth_to=one_meter_zone_start, 
                                                                 depth_from=one_meter_zone_end, radius = holeR, pix_len = pixLen, 
                                                                 min_vug_area = min_vug_area, max_vug_area = max_vug_area, 
-                                                                min_circ_ratio=new_default_min_circ_ratio, max_circ_ratio=new_default_max_circ_ratio) #values changed here
+                                                                min_circ_ratio=min_circ_ratio, max_circ_ratio=max_circ_ratio) #values changed here
                     output = get_combined_contours_and_centroids(contours, centroids, vugs,combined_centroids, 
                                                                     final_combined_contour, final_combined_vugs,i, threshold = 5)
                     combined_centroids, final_combined_contour, final_combined_vugs = output
 
+                    # filter the contours based on the contrast of each contour with the original image
                     filtered_contour, filtered_vugs = filter_contours_based_on_original_image(final_combined_contour, final_combined_vugs, 
                                                                                             fmi_array_one_meter_zone, 0.2)
+                    # saving original filtered contour and vugs in new variable for further use
                     filtered_contour_ = copy.deepcopy(filtered_contour)
                     filtered_vugs_ = copy.deepcopy(filtered_vugs)
 
@@ -370,8 +411,10 @@ def main():
                     
                     filtered_contour_, filtered_vugs_ = filter_contour_based_on_mean_pixel_in_and_around_original_contour(fmi_array_one_meter_zone, 
                                                                                                                             filtered_contour_, 
-                                                                                                                            filtered_vugs_, 
-                                                                                                                            threshold = mean_diff_thresh)
+                                                                                                                            filtered_vugs_, threshold = mean_diff_thresh)
+                    # total vugs count                                                                                                      
+                    total_filtered_vugs.append(filtered_vugs_)
+
                     for pts in filtered_contour_:
                         x = pts[:, 0, 0]
                         y = pts[:, 0, 1]
@@ -386,6 +429,9 @@ def main():
                                                                     one_meter_zone_start, one_meter_zone_end)
                     pred_df = pd.concat([pred_df, detected_vugs_percentage], axis=0)
                 height_idx+=height
+
+
+
 
                     
             vugs_threshold = 1.5
@@ -453,8 +499,20 @@ def main():
                 st.pyplot(plt)
                 img_idx+=img_height
 
-        st.divider()
-        st.button('Generate Report')
+        # st.divider()
+
+        # if st.button('Generate Report'):
+        #     # Save the original FMI, contour, and histogram plots
+        #     original_plot_path = "whole/{default_start}.png"  # Replace with the actual path
+        #     # contour_plot_path = "contour_plot.png"  # Replace with the actual path
+        #     # histogram_plot_path = "histogram_plot.png"  # Replace with the actual path
+
+        #     # Call the function to generate the PDF report
+        #     pdf_path = generate_pdf_report(original_plot_path)
+
+        #     st.success("Report generated successfully!")
+        #     st.markdown(f"[Download the PDF report]({pdf_path})")
+
         thresh_percent = 2
 if __name__ == "__main__":
     main()
