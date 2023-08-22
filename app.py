@@ -13,9 +13,6 @@ from reportlab.pdfgen import canvas
 import seaborn as sns
 
     
-    
-
-
 def generate_pdf_report(original_plot_path):
     pdf_path = "report.pdf"  # Path where the PDF report will be saved
     c = canvas.Canvas(pdf_path, pagesize=letter)
@@ -38,6 +35,37 @@ def generate_pdf_report(original_plot_path):
 
     return pdf_path
 
+def extract_data(zone_start, zone_end):
+    # Load the original CSV file
+    original_data = pd.read_csv('tdep_array copy.csv', header=None, names=['Depth'])
+
+    # Find the indices where 'Depth' values are within the specified range
+    start_index = np.argmax(original_data['Depth'] >= zone_start)
+    end_index = np.argmax(original_data['Depth'] > zone_end)  # Exclude the zone_end value itself
+
+    # Extract the data within the specified range
+    extracted_data = original_data.iloc[start_index:end_index]
+
+    # Save the extracted data to a different CSV file
+    extracted_data.to_csv('extracted_data_accepted_range.csv', index=False)
+
+    return extracted_data
+
+def extract_data1(zone_start, zone_end):
+    # Load the original CSV file
+    original_data = pd.read_csv('tdep_array copy.csv', header=None, names=['Depth'])
+
+    # Find the indices where 'Depth' values are within the specified range
+    start_index = np.argmax(original_data['Depth'] >= zone_start)
+    end_index = np.argmax(original_data['Depth'] > zone_end)  # Exclude the zone_end value itself
+
+    # Extract the data within the specified range
+    extracted_data = original_data.iloc[start_index:end_index]
+
+    # Save the extracted data to a different CSV file
+    extracted_data.to_csv('extracted_data_flagged_range.csv', index=False)
+
+    return extracted_data
  
 def main():
     script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -47,7 +75,7 @@ def main():
 
     uploaded_file = st.file_uploader("Upload DLIS File", type=["dlis"])
     zone_start_selected = 0
-    
+    st.markdown("Loading of the dlis takes time due to its large size, please wait..")
     if uploaded_file is not None:
         st.subheader("File uploaded successfully")
         fmi_df = pd.read_csv("fmi_array.csv")
@@ -69,12 +97,10 @@ def main():
         ax1.invert_yaxis()
         ax1.set_title("Original FMI")
 
-        #columns 2
         col1,col2,col3 = st.columns(3)
         with col1:
             st.pyplot(fig)
 
-        # for contours
         std_thres, var_thres, skew_thres, kurt_thres = 2, 3, 5, 50
         skew_thres_low, kurt_thres_low = 0.1, 1
         min_high = 49
@@ -91,7 +117,6 @@ def main():
 
         thresh_percent = 2
 
-        # c_threshold = -1
         c_threshold = 'mean'
 
         threshold_plotting = False
@@ -120,7 +145,7 @@ def main():
         std_thres, var_thres, skew_thres, kurt_thres = 2, 3, 5, 50
         skew_thres_low, kurt_thres_low = 0.1, 1
         min_high = 49
-        max_low = 75 #not important params
+        max_low = 75
         mean_low = 60
 
         stride_mode = 5
@@ -128,12 +153,9 @@ def main():
 
         st.divider()
 
-        # start = 2739.02 # what user has start selected
-        # end = 2810.02   # what user has end selected
 
         default_start = 2739.02
         default_end = 2745.02
-        # subheader to let the user know to end start and end to be of like 6m diff for least latency
         st.write(':red[*] Enter start - end depth within 6m for optimal performance')
         st.markdown("Select depth of interest")
         
@@ -145,9 +167,6 @@ def main():
             end = st.number_input("Max Depth", value=default_end)
         
         
-        
-
-        # c_threshold = -1
         c_threshold = 'mean'
 
         threshold_plotting = False
@@ -302,10 +321,8 @@ def main():
             st.pyplot(plt)
             plt.savefig(f"whole/{zone_start}.png", dpi=400, bbox_inches='tight')
         #     plt.close()
-            # break
             img_idx+=img_height
-            # if img_idx>=5000:
-            #     break
+
         
         
         if st.button('Show Statistical Analysis'):
@@ -333,10 +350,49 @@ def main():
         with col2:
             # reitrerate button for changed parameters 4 values
             st.markdown("  ")
+            st.markdown("Accept Original Interpretation")
             accepted_button = st.button("Accept")
             if accepted_button:
                 st.success("Accepted Original Interpretation!!")
+
+                # You need to specify the zone_start and zone_end values here
+                # These values should be based on the user's accepted parameters
+                # zone_start = 2739.02
+                # zone_end = 2745.02
+
+                # Extract data based on accepted parameters
+                extracted_data = extract_data(start, end)
+
+                # Provide a download link for the CSV file
+                csv_data = extracted_data.to_csv(index=False)
+                st.download_button(
+                    label="Download CSV",
+                    data=csv_data,
+                    file_name="extracted_data_accepted_range.csv",
+                    key="download_button"
+                )
             st.divider()
+            st.markdown("Flag Original Interpretation")
+            flag_button = st.button("Flag")
+            if flag_button:
+                st.error("Flagged Original Interpretation!!")
+
+                # You need to specify the zone_start and zone_end values here
+                # These values should be based on the user's accepted parameters
+                # zone_start = 2739.02
+                # zone_end = 2745.02
+
+                # Extract data based on accepted parameters
+                extracted_data = extract_data1(start, end)
+
+                # Provide a download link for the CSV file
+                csv_data = extracted_data.to_csv(index=False)
+                st.download_button(
+                    label="Download CSV",
+                    data=csv_data,
+                    file_name="extracted_data_flagged_range.csv",
+                    key="download_button"
+                )
             st.markdown("Change parameters for selected depth")
             reiterate_button = st.button("Reiterate")
         
@@ -372,14 +428,14 @@ def main():
             pred_df = pd.DataFrame()
             c = 0
             height_idx = 0
-            start = 2739.02 # what user has start selected
-            end = 2810.02   # what user has end selected
+
+
+            
+            
             contour_x, contour_y = [], []
-            # total vugs count 
             total_filtered_vugs =[]
             for one_meter_zone_start in tqdm(np.arange(start,end, 1)):
                 one_meter_zone_end = one_meter_zone_start + 1
-            #     print(one_meter_zone_start, one_meter_zone_end)
                 output = get_one_meter_fmi_and_GT(one_meter_zone_start, one_meter_zone_end, 
                                                 tdep_array, fmi_array, well_radius_doi, gt)
                 fmi_array_one_meter_zone, tdep_array_one_meter_zone, well_radius_one_meter_zone, gtZone = output
@@ -391,7 +447,7 @@ def main():
                     thresold_img = apply_adaptive_thresholding(fmi_array_one_meter_zone, diff_thresh, block_size = 21, c = c_threshold)
                     holeR, pixLen = well_radius_one_meter_zone.mean()*100, (np.diff(tdep_array_one_meter_zone)*100).mean()
                         
-                        # get contours and centroids from the thresholded image of the derived one meter zone
+                    
                     contours, centroids, vugs = get_contours(thresold_img, depth_to=one_meter_zone_start, 
                                                                 depth_from=one_meter_zone_end, radius = holeR, pix_len = pixLen, 
                                                                 min_vug_area = min_vug_area, max_vug_area = max_vug_area, 
@@ -400,10 +456,8 @@ def main():
                                                                     final_combined_contour, final_combined_vugs,i, threshold = 5)
                     combined_centroids, final_combined_contour, final_combined_vugs = output
 
-                    # filter the contours based on the contrast of each contour with the original image
                     filtered_contour, filtered_vugs = filter_contours_based_on_original_image(final_combined_contour, final_combined_vugs, 
                                                                                             fmi_array_one_meter_zone, 0.2)
-                    # saving original filtered contour and vugs in new variable for further use
                     filtered_contour_ = copy.deepcopy(filtered_contour)
                     filtered_vugs_ = copy.deepcopy(filtered_vugs)
 
@@ -411,10 +465,11 @@ def main():
                     
                     filtered_contour_, filtered_vugs_ = filter_contour_based_on_mean_pixel_in_and_around_original_contour(fmi_array_one_meter_zone, 
                                                                                                                             filtered_contour_, 
-                                                                                                                            filtered_vugs_, threshold = mean_diff_thresh)
+                                                                                                                            filtered_vugs_, 
+                                                                                                                            threshold = mean_diff_thresh)
+                    
                     # total vugs count                                                                                                      
                     total_filtered_vugs.append(filtered_vugs_)
-
                     for pts in filtered_contour_:
                         x = pts[:, 0, 0]
                         y = pts[:, 0, 1]
@@ -430,13 +485,11 @@ def main():
                     pred_df = pd.concat([pred_df, detected_vugs_percentage], axis=0)
                 height_idx+=height
 
-
-
-
-                    
+            
+                
             vugs_threshold = 1.5
             vicinity_threshold = 1
-            per_page_depth_zone = 10
+            per_page_depth_zone = 10 # if selected 6m then change to 6 if 10 then change to 10 1457.8 1498.2 (1498.8)
             num_rows = (vicinity_threshold*2)+1
             pred_df_copy = pred_df.reset_index(drop=True)
 
@@ -453,7 +506,7 @@ def main():
             img_idx = 0
             for zone_start in tqdm(np.arange(start, end, per_page_depth_zone)):
                 zone_end = zone_start + per_page_depth_zone
-
+                zone_start_selected = zone_start
                 temp_mask = (tdep_array_doi>=zone_start) & (tdep_array_doi<=zone_end)
                 fmi_zone = fmi_array_doi[temp_mask]
                 pred_df_zone = pred_df_copy[(pred_df_copy.Depth>=zone_start) & (pred_df_copy.Depth<=zone_end)]
@@ -474,8 +527,10 @@ def main():
 
                     depth_values, target_value = pred_df_zone.Depth.values, centroid_depth
 
+                    # Find the index where the target_value should be inserted
                     insert_index = np.searchsorted(depth_values, target_value, side='right') - 1
 
+                    # Check if the target_value is greater than the last depth value, in that case, it will be inserted at the end
                     if insert_index == len(depth_values) - 1 and target_value > depth_values[-1]:
                         insert_index = len(depth_values) - 1
                     if pred_df_zone.iloc[insert_index].Vugs != 0:
@@ -497,21 +552,17 @@ def main():
 
                 plt.tight_layout()
                 st.pyplot(plt)
+                plt.savefig(f"whole/{zone_start}.png", dpi=400, bbox_inches='tight')
+            #     plt.close()
                 img_idx+=img_height
+                
+            if st.button('Show Statistical Analysis for reiterated one'):
+                filtered_vugs = [i['area'] for filtered_vugs_ in total_filtered_vugs for i in filtered_vugs_]
 
-        # st.divider()
+                fig1, ax = plt.subplots()
+                sns.histplot(filtered_vugs, ax=ax)
+                st.pyplot(fig1)
 
-        # if st.button('Generate Report'):
-        #     # Save the original FMI, contour, and histogram plots
-        #     original_plot_path = "whole/{default_start}.png"  # Replace with the actual path
-        #     # contour_plot_path = "contour_plot.png"  # Replace with the actual path
-        #     # histogram_plot_path = "histogram_plot.png"  # Replace with the actual path
-
-        #     # Call the function to generate the PDF report
-        #     pdf_path = generate_pdf_report(original_plot_path)
-
-        #     st.success("Report generated successfully!")
-        #     st.markdown(f"[Download the PDF report]({pdf_path})")
 
         thresh_percent = 2
 if __name__ == "__main__":
