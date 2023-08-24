@@ -360,8 +360,14 @@ def main():
     uploaded_file = st.file_uploader("Upload DLIS File", type=["dlis"])
     zone_start_selected = 0
     
-    #if st.button("Import preloaded DLIS"): 
-    if uploaded_file is not None:
+    if 'button_clicked' not in st.session_state:
+        st.session_state.button_clicked = False
+    
+    if st.button("Import preloaded DLIS"):
+        st.session_state.button_clicked = True
+    # if uploaded_file is not None:
+    
+    if st.session_state.button_clicked:
         st.success("File uploaded successfully")
         fmi_df = pd.read_csv("fmi_array.csv")
         tdep_df = pd.read_csv("tdep_array.csv")
