@@ -8,167 +8,14 @@ from sklearn.preprocessing import MinMaxScaler
 import copy
 import os
 from dlisio import dlis
-from reportlab.lib.pagesizes import letter
-from reportlab.pdfgen import canvas
 import seaborn as sns
 
-    
-def generate_pdf_report(original_plot_path):
-    pdf_path = "report.pdf"  # Path where the PDF report will be saved
-    c = canvas.Canvas(pdf_path, pagesize=letter)
 
-    # Add a title to the report
-    c.setFont("Helvetica-Bold", 16)
-    c.drawString(100, 750, "User Journey Report")
-
-    # Draw the original FMI plot
-    c.drawImage(original_plot_path, 100, 550, width=400, height=300)
-
-    # # Draw the contour plot
-    # c.drawImage(contour_plot_path, 100, 250, width=400, height=300)
-
-    # # Draw the histogram plot
-    # c.drawImage(histogram_plot_path, 100, 50, width=400, height=300)
-
-    # Save the PDF and close the canvas
-    c.save()
-
-    return pdf_path
-
-def extract_data(zone_start, zone_end):
-    # Load the original CSV file
-    original_data = pd.read_csv('tdep_array copy.csv', header=None, names=['Depth'])
-
-    # Find the indices where 'Depth' values are within the specified range
-    start_index = np.argmax(original_data['Depth'] >= zone_start)
-    end_index = np.argmax(original_data['Depth'] > zone_end)  # Exclude the zone_end value itself
-
-    # Extract the data within the specified range
-    extracted_data = original_data.iloc[start_index:end_index]
-
-    # Save the extracted data to a different CSV file
-    extracted_data.to_csv('extracted_data_accepted_range.csv', index=False)
-
-    return extracted_data
-
-def extract_data1(zone_start, zone_end):
-    # Load the original CSV file
-    original_data = pd.read_csv('tdep_array copy.csv', header=None, names=['Depth'])
-
-    # Find the indices where 'Depth' values are within the specified range
-    start_index = np.argmax(original_data['Depth'] >= zone_start)
-    end_index = np.argmax(original_data['Depth'] > zone_end)  # Exclude the zone_end value itself
-
-    # Extract the data within the specified range
-    extracted_data = original_data.iloc[start_index:end_index]
-
-    # Save the extracted data to a different CSV file
-    extracted_data.to_csv('extracted_data_flagged_range.csv', index=False)
-
-    return extracted_data
- 
-def main():
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    os.chdir(script_dir)
-    # st.set_page_config(page_title="Vug Detection", page_icon="🤖", layout="wide", )  
-    st.header("Automatic vug detection from FMI logs")
-
-    uploaded_file = st.file_uploader("Upload DLIS File", type=["dlis"])
-    zone_start_selected = 0
-    st.markdown("Loading of the dlis takes time due to its large size, please wait..")
-    if uploaded_file is not None:
-        st.subheader("File uploaded successfully")
-        fmi_df = pd.read_csv("fmi_array.csv")
-        tdep_df = pd.read_csv("tdep_array.csv")
-        gt = pd.read_csv("Khufai_Vugs.csv").dropna()[1:].astype('float')
-        well_radius_doi = pd.read_csv("well_radius_array.csv")
-
-        fmi_array = fmi_df.to_numpy()
-        tdep_array = tdep_df .to_numpy()
-        well_radius_doi = well_radius_doi.to_numpy()
-        #print(len(fmi_array), len(tdep_array) )
-
-
-        tdep_array= tdep_array.reshape(-1) 
-
-        fig, ax1 = plt.subplots(1, figsize=(10, 10), sharey=True)
-        ax1.imshow(np.flip(fmi_array, 0), cmap="YlOrBr")
-        ax1.set_yticks(np.linspace(0, tdep_array.shape[0], 10), np.linspace(tdep_array[-1], tdep_array[0], 10).round(2))
-        ax1.invert_yaxis()
-        ax1.set_title("Original FMI")
-
-        col1,col2,col3 = st.columns(3)
-        with col1:
-            st.pyplot(fig)
-
-        std_thres, var_thres, skew_thres, kurt_thres = 2, 3, 5, 50
-        skew_thres_low, kurt_thres_low = 0.1, 1
-        min_high = 49
-        max_low = 75 #not important params
-        mean_low = 60
-
+def inital_plot(tdep_array, fmi_array, well_radius_doi, gt,start,end,min_vug_area,max_vug_area,min_circ_ratio,max_circ_ratio):
+        # c_threshold = -1
+        c_threshold = 'mean'
         stride_mode = 5
         k = 5
-
-        min_vug_area = 0.5 # Important param
-        max_vug_area = 10.28 #not important params
-        min_circ_ratio = 0.5 # Important param
-        max_circ_ratio = 1  #not important params
-
-        thresh_percent = 2
-
-        c_threshold = 'mean'
-
-        threshold_plotting = False
-        distribution_plot = False
-        area_histogram_plot = False
-        original_contour_plot = True
-        save_plot = True
-        greater_than_mode_percentage_plot = False
-        thrsholding_type = 'adaptive'
-        nearest_point_5 = True
-
-        if thrsholding_type == 'normal':
-            std_no = 1
-
-        mean_diff_thresh = 0.1
-
-        plotting_start, plotting_end = 2637.02,2887.76
-
-        well_radius_doi= well_radius_doi.reshape(-1)
-
-        default_min_vug_area = 0.5
-        default_max_vug_area = 10.28
-        default_min_circ_ratio = 0.5
-        default_max_circ_ratio = 1.0
-        #variables
-        std_thres, var_thres, skew_thres, kurt_thres = 2, 3, 5, 50
-        skew_thres_low, kurt_thres_low = 0.1, 1
-        min_high = 49
-        max_low = 75
-        mean_low = 60
-
-        stride_mode = 5
-        k = 5
-
-        st.divider()
-
-
-        default_start = 2739.02
-        default_end = 2745.02
-        st.write(':red[*] Enter start - end depth within 6m for optimal performance')
-        st.markdown("Select depth of interest")
-        
-        col1,col2 = st.columns(2)
-        
-        with col1:
-            start = st.number_input("Min Depth ", value=default_start)
-        with col2:
-            end = st.number_input("Max Depth", value=default_end)
-        
-        
-        c_threshold = 'mean'
-
         threshold_plotting = False
         distribution_plot = False
         area_histogram_plot = False
@@ -321,83 +168,25 @@ def main():
             st.pyplot(plt)
             plt.savefig(f"whole/{zone_start}.png", dpi=400, bbox_inches='tight')
         #     plt.close()
+            # break
             img_idx+=img_height
-
-        
-        
+            # if img_idx>=5000:
+            #     break
         if st.button('Show Statistical Analysis'):
             filtered_vugs = [i['area'] for filtered_vugs_ in total_filtered_vugs for i in filtered_vugs_]
 
             fig1, ax = plt.subplots()
             sns.histplot(filtered_vugs, ax=ax)
             st.pyplot(fig1)
-        
-        st.divider()    
-        col1,col2 = st.columns(2)
-        
-        with col1:
-            # values after the user changes parameters
-            new_default_min_vug_area = 0.5
-            new_default_max_vug_area = 10.28
-            new_default_min_circ_ratio = 0.5
-            new_default_max_circ_ratio = 1.0
 
-            min_vug_area = st.number_input("Min Vug Area", value=new_default_min_vug_area)
-            max_vug_area = st.number_input("Max Vug Area", value=new_default_max_vug_area)
-            min_circ_ratio = st.number_input("Min Circ Ratio", value=new_default_min_circ_ratio)
-            max_circ_ratio = st.number_input("Max Circ Ratio", value=new_default_max_circ_ratio)
-            
-        with col2:
-            # reitrerate button for changed parameters 4 values
-            st.markdown("  ")
-            st.markdown("Accept Original Interpretation")
-            accepted_button = st.button("Accept")
-            if accepted_button:
-                st.success("Accepted Original Interpretation!!")
+def button_clicked(reiterate_button, tdep_array, fmi_array, well_radius_doi, gt,start,end,min_vug_area,max_vug_area,min_circ_ratio,max_circ_ratio):
+            stride_mode = 5
+            k = 5
 
-                # You need to specify the zone_start and zone_end values here
-                # These values should be based on the user's accepted parameters
-                # zone_start = 2739.02
-                # zone_end = 2745.02
-
-                # Extract data based on accepted parameters
-                extracted_data = extract_data(start, end)
-
-                # Provide a download link for the CSV file
-                csv_data = extracted_data.to_csv(index=False)
-                st.download_button(
-                    label="Download CSV",
-                    data=csv_data,
-                    file_name="extracted_data_accepted_range.csv",
-                    key="download_button"
-                )
-            st.divider()
-            st.markdown("Flag Original Interpretation")
-            flag_button = st.button("Flag")
-            if flag_button:
-                st.error("Flagged Original Interpretation!!")
-
-                # You need to specify the zone_start and zone_end values here
-                # These values should be based on the user's accepted parameters
-                # zone_start = 2739.02
-                # zone_end = 2745.02
-
-                # Extract data based on accepted parameters
-                extracted_data = extract_data1(start, end)
-
-                # Provide a download link for the CSV file
-                csv_data = extracted_data.to_csv(index=False)
-                st.download_button(
-                    label="Download CSV",
-                    data=csv_data,
-                    file_name="extracted_data_flagged_range.csv",
-                    key="download_button"
-                )
-            st.markdown("Change parameters for selected depth")
-            reiterate_button = st.button("Reiterate")
-        
-        st.divider()   
-        if reiterate_button:
+            # min_vug_area = 0.5 
+            # max_vug_area = 10.28 
+            # min_circ_ratio = 0.5 
+            # max_circ_ratio = 1 
             st.write("FMI-Contour-Predicted plot for selected values:")
             # c_threshold = -1
             c_threshold = 'mean'
@@ -433,7 +222,7 @@ def main():
             
             
             contour_x, contour_y = [], []
-            total_filtered_vugs =[]
+            total_filtered_vugsa =[]
             for one_meter_zone_start in tqdm(np.arange(start,end, 1)):
                 one_meter_zone_end = one_meter_zone_start + 1
                 output = get_one_meter_fmi_and_GT(one_meter_zone_start, one_meter_zone_end, 
@@ -469,7 +258,7 @@ def main():
                                                                                                                             threshold = mean_diff_thresh)
                     
                     # total vugs count                                                                                                      
-                    total_filtered_vugs.append(filtered_vugs_)
+                    total_filtered_vugsa.append(filtered_vugs_)
                     for pts in filtered_contour_:
                         x = pts[:, 0, 0]
                         y = pts[:, 0, 1]
@@ -555,14 +344,165 @@ def main():
                 plt.savefig(f"whole/{zone_start}.png", dpi=400, bbox_inches='tight')
             #     plt.close()
                 img_idx+=img_height
-                
-            if st.button('Show Statistical Analysis for reiterated one'):
-                filtered_vugs = [i['area'] for filtered_vugs_ in total_filtered_vugs for i in filtered_vugs_]
+                if st.button('Show Statistical Analysis for reiterated one'):
+                    filtered_vugs = [i['area'] for filtered_vugs_ in total_filtered_vugs for i in filtered_vugs_]
 
-                fig1, ax = plt.subplots()
-                sns.histplot(filtered_vugs, ax=ax)
-                st.pyplot(fig1)
+                    fig1, ax = plt.subplots()
+                    sns.histplot(filtered_vugs, ax=ax)
+                    st.pyplot(fig1)
+ 
+def main():
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    os.chdir(script_dir)
+    # st.set_page_config(page_title="Vug Detection", page_icon="🤖", layout="wide", )  
+    st.header("Automatic vug detection from FMI logs")
 
+    uploaded_file = st.file_uploader("Upload DLIS File", type=["dlis"])
+    zone_start_selected = 0
+    
+    #if st.button("Import preloaded DLIS"): 
+    if uploaded_file is not None:
+        st.success("File uploaded successfully")
+        fmi_df = pd.read_csv("fmi_array.csv")
+        tdep_df = pd.read_csv("tdep_array.csv")
+        gt = pd.read_csv("Khufai_Vugs.csv").dropna()[1:].astype('float')
+        well_radius_doi = pd.read_csv("well_radius_array.csv")
+
+        fmi_array = fmi_df.to_numpy()
+        tdep_array = tdep_df .to_numpy()
+        well_radius_doi = well_radius_doi.to_numpy()
+
+        tdep_array= tdep_array.reshape(-1) 
+
+        fig, ax1 = plt.subplots(1, figsize=(10, 10), sharey=True)
+        ax1.imshow(np.flip(fmi_array, 0), cmap="YlOrBr")
+        ax1.set_yticks(np.linspace(0, tdep_array.shape[0], 10), np.linspace(tdep_array[-1], tdep_array[0], 10).round(2))
+        ax1.invert_yaxis()
+        ax1.set_title("Original FMI")
+
+        col1,col2,col3 = st.columns(3)
+        with col1:
+            st.pyplot(fig)
+
+        min_vug_area = 0.5 # Important param
+        max_vug_area = 10.28 #not important params
+        min_circ_ratio = 0.5 # Important param
+        max_circ_ratio = 1  #not important params
+        
+        data = pd.DataFrame(columns=['start', 'end', 'status'])
+        if 'data' not in st.session_state:
+            st.session_state.data = pd.DataFrame(columns=['start', 'end', 'status'])
+        thresh_percent = 2
+
+        c_threshold = 'mean'
+
+        threshold_plotting = False
+        distribution_plot = False
+        area_histogram_plot = False
+        original_contour_plot = True
+        save_plot = True
+        greater_than_mode_percentage_plot = False
+        thrsholding_type = 'adaptive'
+        nearest_point_5 = True
+
+        if thrsholding_type == 'normal':
+            std_no = 1
+
+        mean_diff_thresh = 0.1
+
+        plotting_start, plotting_end = 2637.02,2887.76
+
+        well_radius_doi= well_radius_doi.reshape(-1)
+
+        default_min_vug_area = 0.5
+        default_max_vug_area = 10.28
+        default_min_circ_ratio = 0.5
+        default_max_circ_ratio = 1.0
+        #variables
+        std_thres, var_thres, skew_thres, kurt_thres = 2, 3, 5, 50
+        skew_thres_low, kurt_thres_low = 0.1, 1
+        min_high = 49
+        max_low = 75 #not important params
+        mean_low = 60
+
+        stride_mode = 5
+        k = 5
+
+        st.divider()
+        default_start = 2739.02
+        default_end = 2745.02
+        # subheader to let the user know to end start and end to be of like 6m diff for least latency
+        st.write(':red[*] Enter start - end depth within 6m for optimal performance')
+        st.markdown("Select depth of interest")
+        
+        col1,col2 = st.columns(2)
+        
+        with col1:
+            start = st.number_input("Min Depth ", value=default_start)
+        with col2:
+            end = st.number_input("Max Depth", value=default_end)
+        
+        inital_plot(tdep_array, fmi_array, well_radius_doi, gt,start,end,min_vug_area,max_vug_area,min_circ_ratio,max_circ_ratio)
+        
+
+        
+        st.divider()    
+        col1,col2 = st.columns(2)
+        
+        with col1:
+            # values after the user changes parameters
+            new_default_min_vug_area = 0.5
+            new_default_max_vug_area = 10.28
+            new_default_min_circ_ratio = 0.5
+            new_default_max_circ_ratio = 1.0
+
+            min_vug_area = st.number_input("Min Vug Area", value=new_default_min_vug_area)
+            max_vug_area = st.number_input("Max Vug Area", value=new_default_max_vug_area)
+            min_circ_ratio = st.number_input("Min Circ Ratio", value=new_default_min_circ_ratio)
+            max_circ_ratio = st.number_input("Max Circ Ratio", value=new_default_max_circ_ratio)
+            
+        with col2:
+            # reitrerate button for changed parameters 4 values
+            st.markdown("Accept Original Interpretation")
+            accepted_button = st.button("Accept")
+            if accepted_button:
+                st.success("Accepted Original Interpretation!!")
+                status = "Accepted"
+                zone_start = start
+                zone_end = end
+                # accepted_range = {'start': [start], 'end': [end], 'status': ['Accepted']}
+                accepted_range = pd.DataFrame({'start': [zone_start], 'end': [zone_end], 'status': ['Accepted']})
+                # data = data.concat([data, accepted_range], ignore_index=True)
+                data = pd.concat([data, accepted_range], ignore_index=True)
+            st.divider()
+
+            st.markdown("Flag Original Interpretation")
+            flag_button = st.button("Flag")
+            if flag_button:
+                status = "Flagged"
+                zone_start = start
+                zone_end = end
+                flagged_range = pd.DataFrame({'start': [zone_start], 'end': [zone_end], 'status': ['Flagged']})
+                data = pd.concat([data, flagged_range], ignore_index=True)
+            print(data)
+               
+            st.markdown("Change parameters for selected depth")
+            reiterate_button = st.button("Reiterate")
+        
+        st.divider()   
+        if reiterate_button:
+            button_clicked(reiterate_button, tdep_array, fmi_array, well_radius_doi, gt,start,end,min_vug_area,max_vug_area, min_circ_ratio, max_circ_ratio)
+
+        if not data.empty:
+            st.markdown("Download Accepted and Flagged Ranges")
+
+            csv_data = data.to_csv(index=False)
+            st.download_button(
+                label="Click here",
+                data=csv_data,
+                file_name="accepted_flagged_ranges.csv",
+                key="download_ranges_button"
+            )
 
         thresh_percent = 2
 if __name__ == "__main__":
