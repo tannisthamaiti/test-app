@@ -166,7 +166,7 @@ def inital_plot(tdep_array, fmi_array, well_radius_doi, gt,start,end,min_vug_are
 
             plt.tight_layout()
             st.pyplot(plt)
-            plt.savefig(f"whole/{zone_start}.png", dpi=400, bbox_inches='tight')
+            # plt.savefig(f"whole/{zone_start}.png", dpi=400, bbox_inches='tight')
         #     plt.close()
             # break
             img_idx+=img_height
@@ -341,7 +341,7 @@ def button_clicked(reiterate_button, tdep_array, fmi_array, well_radius_doi, gt,
 
                 plt.tight_layout()
                 st.pyplot(plt)
-                plt.savefig(f"whole/{zone_start}.png", dpi=400, bbox_inches='tight')
+                # plt.savefig(f"whole/{zone_start}.png", dpi=400, bbox_inches='tight')
             #     plt.close()
                 img_idx+=img_height
                 if st.button('Show Statistical Analysis for reiterated one'):
