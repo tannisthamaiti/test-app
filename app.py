@@ -101,6 +101,7 @@ def inital_plot(tdep_array, fmi_array, well_radius_doi, gt,start,end,min_vug_are
                 detected_vugs_percentage = detected_percent_vugs(filtered_contour_, fmi_array_one_meter_zone, tdep_array_one_meter_zone, 
                                                                 one_meter_zone_start, one_meter_zone_end)
                 pred_df = pd.concat([pred_df, detected_vugs_percentage], axis=0)
+                print(pred_df)
             height_idx+=height
 
         
@@ -182,6 +183,7 @@ def inital_plot(tdep_array, fmi_array, well_radius_doi, gt,start,end,min_vug_are
             fig1, ax = plt.subplots()
             sns.histplot(filtered_vugs, ax=ax)
             st.pyplot(fig1)
+            
 
 def button_clicked(reiterate_button, tdep_array, fmi_array, well_radius_doi, gt,start,end,min_vug_area,max_vug_area,min_circ_ratio,max_circ_ratio):
             stride_mode = 5
@@ -364,7 +366,7 @@ def main():
     os.chdir(script_dir)
     # st.set_page_config(page_title="Vug Detection", page_icon="🤖", layout="wide", )  
     st.header("Automatic vug detection from FMI logs")
-
+    df1 = []
     
     conn = sqlite3.connect('your_database_name.db')
     cursor = conn.cursor()
@@ -404,6 +406,7 @@ def main():
     # if uploaded_file is not None:
     
     if st.session_state.button_clicked:
+
         st.success("File uploaded successfully")
         fmi_df = pd.read_csv("fmi_array.csv")
         tdep_df = pd.read_csv("tdep_array.csv")
@@ -522,6 +525,8 @@ def main():
         
         contour_x, contour_y = [], []
         total_filtered_vugs =[]
+        zone_vug_start = 2744.02
+        zone_vug_end = 2750.02
         for one_meter_zone_start in tqdm(np.arange(start,end, 1)):
             one_meter_zone_end = one_meter_zone_start + 1
             output = get_one_meter_fmi_and_GT(one_meter_zone_start, one_meter_zone_end, 
@@ -570,7 +575,10 @@ def main():
                     contour_y.append(y)
                 detected_vugs_percentage = detected_percent_vugs(filtered_contour_, fmi_array_one_meter_zone, tdep_array_one_meter_zone, 
                                                                 one_meter_zone_start, one_meter_zone_end)
+                # df1 = detected_vugs_percentage
+                
                 pred_df = pd.concat([pred_df, detected_vugs_percentage], axis=0)
+                df1 = pred_df
             height_idx+=height
 
         
@@ -711,11 +719,27 @@ def main():
             rows = cursor.fetchall()
             csv_data = pd.DataFrame(rows, columns=['start', 'end', 'status']).to_csv(index=False)
             st.download_button(
-                label="Click here",
+                label="Download Report",
                 data=csv_data,
                 file_name="accepted_flagged_ranges.csv",
                 key="download_ranges_button"
             )
+
+            # Convert the dataframe to CSV format
+            # status = "Test"
+            # df1 = [{key: round(value, 4) for key, value in inner_dict.items()} for inner_dict in df1]
+            df1 = pd.DataFrame(df1)
+            # df1['Status'] = status
+            csv_data = df1.to_csv(index=False)
+
+            # Create a download button for the CSV file
+            st.download_button(
+                label="Click here to download report for depth along with vug predicted",
+                data=csv_data,
+                file_name="depth_vs_vug.csv",
+                key="download_vug_prediction_button"
+            )
+            
                 
         st.divider()   
         if reiterate_button:
