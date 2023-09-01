@@ -359,12 +359,12 @@ def button_clicked(reiterate_button, tdep_array, fmi_array, well_radius_doi, gt,
                 # plt.savefig(f"whole/{zone_start}.png", dpi=400, bbox_inches='tight')
             #     plt.close()
                 img_idx+=img_height
-                if st.button('Show Statistical Analysis for reiterated one'):
-                    filtered_vugs = [i['area'] for filtered_vugs_ in total_filtered_vugs for i in filtered_vugs_]
+                # if st.button('Show Statistical Analysis for reiterated one'):
+                #     filtered_vugs = [i['area'] for filtered_vugs_ in total_filtered_vugs for i in filtered_vugs_]
 
-                    fig1, ax = plt.subplots()
-                    sns.histplot(filtered_vugs, ax=ax)
-                    st.pyplot(fig1)
+                #     fig1, ax = plt.subplots()
+                #     sns.histplot(filtered_vugs, ax=ax)
+                #     st.pyplot(fig1)
 
 def generate_random_string(length):
     letters = string.ascii_lowercase
