@@ -724,7 +724,7 @@ def main():
             st.markdown("Flag Original Interpretation")
             flag_button = st.button("Flag")
             if flag_button:
-                st.success("Flagged original Interpreta")
+                st.success("Flagged original Interpretation")
                 status = "Flagged"
                 zone_start = start
                 zone_end = end
