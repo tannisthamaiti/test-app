@@ -488,8 +488,9 @@ def main():
         default_start = 2739.02
         default_end = 2745.02
         # subheader to let the user know to end start and end to be of like 6m diff for least latency
-        st.write(':red[*] For this MVP, the application can plot a minimum input section of 1m and a maximum input section of 6m starting from the `Min Depth`')
-        
+        # st.write(':red[*] For this MVP, the application can plot a minimum input section of 1m and a maximum input section of 6m starting from the `Min Depth`')
+        st.subheader('For this MVP, the application can plot a minimum input section of 1m and a maximum input section of 6m starting from the `Min Depth`')
+        st.caption(':red[Entering a Max Depth <= Min Depth will result in an error]')
         col1,col2 = st.columns(2)
         
         with col1:
