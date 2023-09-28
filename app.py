@@ -345,14 +345,14 @@ def button_clicked(reiterate_button, tdep_array, fmi_array, well_radius_doi, gt,
                 zone_end = 1
 
                 plot_barh(ax[2], pred_df_zone.Depth.values, pred_df_zone['Vugs'].values, 
-                            zone_start, zone_end-0.1, "Pred\n0-25%", max_scale=25, fontsize = 12)  # change this for font increase
+                            zone_start, zone_end-0.1, "Pred\n0-25%", max_scale=25, fontsize = 14)  # change this for font increase
                     
                 plot_barh(ax[3], gt_zone.Depth.values, gt_zone['Vugs'].values, 
-                            zone_start, zone_end-0.1, "GT\n0-25%", max_scale=25, fontsize=12)  # change this for font increase
+                            zone_start, zone_end-0.1, "GT\n0-25%", max_scale=25, fontsize=14)  # change this for font increase
 
                 
-                ax[0].set_title("Original FMI", fontsize=12)  # change this for font increase
-                ax[1].set_title("Contours", fontsize=12)  # change this for font increase
+                ax[0].set_title("Original FMI", fontsize=14)  # change this for font increase
+                ax[1].set_title("Contours", fontsize=14)  # change this for font increase
 
                 plt.tight_layout()
                 st.pyplot(plt)
