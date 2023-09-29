@@ -202,20 +202,12 @@ def st_display_pdf(pdf_file):
 
 def button_clicked(reiterate_button, tdep_array, fmi_array, well_radius_doi, gt,start,end,min_vug_area,max_vug_area,min_circ_ratio,max_circ_ratio):
     
+            st.write("FMI-Contour-Predicted plot for selected values:")
+
             stride_mode = 5
             k = 5
-
-            # min_vug_area = 0.5 
-            # max_vug_area = 10.28 
-            # min_circ_ratio = 0.5 
-            # max_circ_ratio = 1 
-            st.write("FMI-Contour-Predicted plot for selected values:")
-            # c_threshold = -1
             c_threshold = 'mean'
-
             mean_diff_thresh = 0.1
-
-            #end of variables
             
             well_radius_doi= well_radius_doi.reshape(-1)
 
