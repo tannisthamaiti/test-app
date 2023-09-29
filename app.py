@@ -425,12 +425,13 @@ def main():
         
         
         fmi_array = fmi_df.to_numpy()
-        tdep_array = tdep_df .to_numpy()
+        tdep_array = tdep_df.to_numpy()
         well_radius_doi = well_radius_doi.to_numpy()
 
         tdep_array= tdep_array.reshape(-1) 
 
         fig, ax1 = plt.subplots(1, figsize=(10, 10), sharey=True)
+        #--------------------why changed to this?-------------
         ax1.imshow(np.flip(fmi_array, 0), cmap="YlOrBr")
         ax1.set_yticks(np.linspace(0, tdep_array.shape[0], 10), np.linspace(tdep_array[-1], tdep_array[0], 10).round(2))
         ax1.invert_yaxis()
@@ -540,10 +541,12 @@ def main():
             one_meter_zone_end = one_meter_zone_start + 1
             output = get_one_meter_fmi_and_GT(one_meter_zone_start, one_meter_zone_end, 
                                             tdep_array, fmi_array, well_radius_doi, gt)
+            #--------------------why gtZone not being used?-------------
             fmi_array_one_meter_zone, tdep_array_one_meter_zone, well_radius_one_meter_zone, gtZone = output
             
-            # height = fmi_array_one_meter_zone.shape[0]
-            height = abs(end-start)
+            height = fmi_array_one_meter_zone.shape[0]
+            #--------------------why changed to this?-------------
+            # height = abs(end-start)
 
             different_thresholds = get_mode_of_interest_from_image(fmi_array_one_meter_zone, stride_mode, k)
             for i, diff_thresh in enumerate(different_thresholds):
