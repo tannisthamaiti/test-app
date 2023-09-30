@@ -553,7 +553,7 @@ def main():
             #st.pyplot(fig)
             #################### IMAGE DISPLAY BUTTON HERE ########################
             pdf_path = "SH R-1H1_Merged_diff.pdf"
-            st.file_download(file_path, label="Download File", key="download_file")
+            st.file_download(pdf_path, label="Download File", key="download_file")
             # st_display_pdf("SH R-1H1_Merged_diff.pdf")
 
         min_vug_area = 0.5 # Important param
