@@ -339,6 +339,7 @@ def button_clicked(reiterate_button, tdep_array, fmi_array, well_radius_doi, gt,
                 ax[1].set_title("Contours", fontsize=14)  # change this for font increase
 
                 plt.tight_layout()
+                plt.savefig(f"whole/{zone_start}.png", dpi=400, bbox_inches='tight')
                 st.pyplot(plt)
                 # plt.savefig(f"whole/{zone_start}.png", dpi=400, bbox_inches='tight')
             #     plt.close()
