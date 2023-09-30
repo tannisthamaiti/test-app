@@ -558,7 +558,7 @@ def main():
             file_path = "SH R-1H1_Merged_diff.pdf"
 
             # Create a download button for the existing file
-            if st.button('Download File'):
+            if st.button('Download Existing File'):
                 # Open and read the file
                 with open(file_path, "rb") as file:
                     file_data = file.read()
