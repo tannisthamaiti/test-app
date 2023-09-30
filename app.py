@@ -549,6 +549,7 @@ def main():
         col1,col2,col3 = st.columns(3)
         with col1:
             #st.pyplot(fig)
+            #################### IMAGE DISPLAY BUTTON HERE ########################
             st_display_pdf("SH R-1H1_Merged_diff.pdf")
 
         min_vug_area = 0.5 # Important param
