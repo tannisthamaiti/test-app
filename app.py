@@ -552,7 +552,19 @@ def main():
         with col1:
             #st.pyplot(fig)
             #################### IMAGE DISPLAY BUTTON HERE ########################
-            pdf_path = "SH R-1H1_Merged_diff.pdf"
+            # pdf_path = "SH R-1H1_Merged_diff.pdf"
+
+            # Path to your existing file
+            file_path = "SH R-1H1_Merged_diff.pdf"
+
+            # Create a download button for the existing file
+            if st.button('Download File'):
+                # Open and read the file
+                with open(file_path, "rb") as file:
+                    file_data = file.read()
+                # Generate a downloadable link for the file
+                st.download_button(label="Download File", data=file_data, file_name="SH R-1H1_Merged_diff.pdf", key="download_existing_file")
+
             st.file_download(pdf_path, label="Download File", key="download_file")
             # st_display_pdf("SH R-1H1_Merged_diff.pdf")
 
