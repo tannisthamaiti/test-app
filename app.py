@@ -690,6 +690,7 @@ def main():
             # status = "Test"
             # df1 = [{key: round(value, 4) for key, value in inner_dict.items()} for inner_dict in df1]
             df1 = pd.DataFrame(df1)
+            print(df1.head())
             # df1['Status'] = status
             csv_data = df1.to_csv(index=False)
 
