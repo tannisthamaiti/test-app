@@ -1,20 +1,22 @@
-import streamlit as st
-import matplotlib.pyplot as plt
-import numpy as np
-import pandas as pd
-from tqdm import tqdm
-from utils_vug import *
-from sklearn.preprocessing import MinMaxScaler
+import base64
 import copy
 import os
-from dlisio import dlis
-import seaborn as sns
-import sqlite3
 import random
+import sqlite3
 import string
 import threading
 import time
-import base64
+
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import seaborn as sns
+import streamlit as st
+from dlisio import dlis
+from sklearn.preprocessing import MinMaxScaler
+from tqdm import tqdm
+
+from utils_vug import *
 
 # def inital_plot(tdep_array, fmi_array, well_radius_doi, gt,start,end,min_vug_area,max_vug_area,min_circ_ratio,max_circ_ratio):
 #         # c_threshold = -1
@@ -195,7 +197,7 @@ def st_display_pdf(pdf_file):
     '''
     with open(pdf_file,"rb") as f:
       base64_pdf = base64.b64encode(f.read()).decode('utf-8')
-      pdf_display = f'<iframe src="data:application/pdf;base64,{base64_pdf}" width="400" height="1000" type="application/pdf" sandbox="allow-forms allow-modals allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts allow-downloads"></iframe>'
+      pdf_display = f'<iframe src="data:application/pdf;base64,{base64_pdf}"   width="400" height="1000" type="application/pdf" sandbox="allow-forms allow-modals allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts allow-downloads"></iframe>'
       st.markdown(pdf_display, unsafe_allow_html=True)
 
             
@@ -550,7 +552,9 @@ def main():
         with col1:
             #st.pyplot(fig)
             #################### IMAGE DISPLAY BUTTON HERE ########################
-            st_display_pdf("SH R-1H1_Merged_diff.pdf")
+            pdf_path = "SH R-1H1_Merged_diff.pdf"
+            st.file_download(file_path, label="Download File", key="download_file")
+            # st_display_pdf("SH R-1H1_Merged_diff.pdf")
 
         min_vug_area = 0.5 # Important param
         max_vug_area = 10.28 #not important params
