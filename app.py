@@ -729,6 +729,10 @@ def main():
                 
         st.divider()   
         if reiterate_button:
+            combined_centroids, final_combined_contour, final_combined_vugs = [], [], []
+            contour_x, contour_y = [], []
+            total_filtered_vugs =[]
+            pred_df = pd.DataFrame()
             # button_clicked(reiterate_button, tdep_array, fmi_array, well_radius_doi, gt,start,end,min_vug_area,max_vug_area, min_circ_ratio, max_circ_ratio)
             mask = (tdep_array>=start) & (tdep_array<=end)
 
