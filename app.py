@@ -16,6 +16,7 @@ from dlisio import dlis
 from sklearn.preprocessing import MinMaxScaler
 from tqdm import tqdm
 
+
 from utils_vug import *
 
 # def inital_plot(tdep_array, fmi_array, well_radius_doi, gt,start,end,min_vug_area,max_vug_area,min_circ_ratio,max_circ_ratio):
