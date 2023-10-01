@@ -730,6 +730,11 @@ def main():
         st.divider()   
         if reiterate_button:
             # button_clicked(reiterate_button, tdep_array, fmi_array, well_radius_doi, gt,start,end,min_vug_area,max_vug_area, min_circ_ratio, max_circ_ratio)
+            mask = (tdep_array>=start) & (tdep_array<=end)
+
+            tdep_array_doi = tdep_array[mask]
+            fmi_array_doi = fmi_array[mask]
+            well_radius_doi = well_radius[mask]
             button_clicked(start, end, tdep_array_doi, fmi_array_doi, well_radius_doi, gt, stride_mode, k, c_threshold, 
                    min_vug_area, max_vug_area, min_circ_ratio, max_circ_ratio, mean_diff_thresh, pred_df, combined_centroids, 
                    final_combined_contour, final_combined_vugs, height_idx, contour_x, contour_y, total_filtered_vugs, vicinity_threshold, num_rows, vugs_threshold)
