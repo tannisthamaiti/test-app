@@ -353,7 +353,7 @@ def merge_pdfs(pdf_paths):
     
     for pdf_path in pdf_paths:
         merged_pdf.append(pjoin('whole', pdf_path))
-    merged_pdf.close()
+
     return merged_pdf
 
 
@@ -592,6 +592,7 @@ def main():
 
             if st.button("Generate Report"):
                 pdf_paths = os.listdir('whole')
+                print(pdf_paths)
                 merged_pdf = merge_pdfs(pdf_paths)
                 
                 # Provide a way to download the merged PDF
