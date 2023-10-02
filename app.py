@@ -15,8 +15,10 @@ import streamlit as st
 from dlisio import dlis
 from sklearn.preprocessing import MinMaxScaler
 from tqdm import tqdm
+from os.path import join as pjoin
+import io
 
-
+import PyPDF2
 from utils_vug import *
 
 # def inital_plot(tdep_array, fmi_array, well_radius_doi, gt,start,end,min_vug_area,max_vug_area,min_circ_ratio,max_circ_ratio):
@@ -343,7 +345,17 @@ def plot(fmi_zone, pred_df_zone, start, end, contour_x, contour_y, gt):
     ax[1].set_title("Contours", fontsize=12)
 
     plt.tight_layout()
+    plt.savefig(f"whole/{start}-{end}.pdf", dpi=400, bbox_inches='tight')
     st.pyplot(plt)
+
+def merge_pdfs(pdf_paths):
+    merged_pdf = PyPDF2.PdfMerger()
+    
+    for pdf_path in pdf_paths:
+        merged_pdf.append(pjoin('whole', pdf_path))
+    
+    return merged_pdf
+
 
 def main():
     script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -567,7 +579,6 @@ def main():
             # status = "Test"
             # df1 = [{key: round(value, 4) for key, value in inner_dict.items()} for inner_dict in df1]
             df1 = pd.DataFrame(df1)
-            print(df1.head())
             # df1['Status'] = status
             csv_data = df1.to_csv(index=False)
 
@@ -578,7 +589,19 @@ def main():
                 file_name="depth_vs_vug.csv",
                 key="download_vug_prediction_button"
             )
-            
+
+            if st.button("Generate Report"):
+                pdf_paths = os.listdir('whole')
+                merged_pdf = merge_pdfs(pdf_paths)
+                
+                # Provide a way to download the merged PDF
+                pdf_data = io.BytesIO()
+                merged_pdf.write(pdf_data)
+                pdf_data.seek(0)
+
+                st.success("PDFs merged successfully! Click below to download:")
+                st.download_button(label="Download Report", data=pdf_data, file_name="merged.pdf", key="merged_pdf")
+
                 
         st.divider()   
         if reiterate_button:
