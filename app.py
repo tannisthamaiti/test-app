@@ -353,7 +353,7 @@ def merge_pdfs(pdf_paths):
     
     for pdf_path in pdf_paths:
         merged_pdf.append(pjoin('whole', pdf_path))
-    
+    merged_pdf.close()
     return merged_pdf
 
 
