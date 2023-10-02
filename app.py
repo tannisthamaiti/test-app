@@ -480,7 +480,7 @@ def main():
             end = st.number_input("Max Depth", value=default_end)
 
         mask = (tdep_array>=start) & (tdep_array<=end)
-        print(tdep_array.shape, fmi_array.shape)
+        st.subheader(f"{tdep_array.shape}-{fmi_array.shape}")
 
         tdep_array_doi = tdep_array[mask]
         fmi_array_doi = fmi_array[mask]
