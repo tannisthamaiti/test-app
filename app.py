@@ -403,7 +403,7 @@ def main():
     if st.session_state.button_clicked:
 
         st.success("File uploaded successfully")
-        fmi_df = pd.read_csv("fmi_array_stat.csv")
+        fmi_df = pd.read_csv("fmi_array.csv")
         tdep_df = pd.read_csv("tdep_array.csv")
         gt = pd.read_csv("Khufai_Vugs.csv").dropna()[1:].astype('float')
         well_radius = pd.read_csv("well_radius_array.csv")
@@ -480,7 +480,6 @@ def main():
             end = st.number_input("Max Depth", value=default_end)
 
         mask = (tdep_array>=start) & (tdep_array<=end)
-        st.subheader(f"{tdep_array.shape}-{fmi_array.shape}")
 
         tdep_array_doi = tdep_array[mask]
         fmi_array_doi = fmi_array[mask]
