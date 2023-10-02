@@ -480,6 +480,7 @@ def main():
             end = st.number_input("Max Depth", value=default_end)
 
         mask = (tdep_array>=start) & (tdep_array<=end)
+        print(tdep_array.shape, fmi_array.shape)
 
         tdep_array_doi = tdep_array[mask]
         fmi_array_doi = fmi_array[mask]
@@ -611,7 +612,6 @@ def main():
             pred_df = pd.DataFrame()
             # button_clicked(reiterate_button, tdep_array, fmi_array, well_radius_doi, gt,start,end,min_vug_area,max_vug_area, min_circ_ratio, max_circ_ratio)
             mask = (tdep_array>=start) & (tdep_array<=end)
-            print(tdep_array.shape, fmi_array.shape)
             tdep_array_doi = tdep_array[mask]
             fmi_array_doi = fmi_array[mask]
             well_radius_doi = well_radius[mask]
