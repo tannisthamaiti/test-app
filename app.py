@@ -592,7 +592,7 @@ def main():
 
             if st.button("Generate Report"):
                 pdf_paths = os.listdir('whole')
-                print(pdf_paths)
+                st.subheader(f"this - {pdf_paths}")
                 merged_pdf = merge_pdfs(pdf_paths)
                 
                 # Provide a way to download the merged PDF
