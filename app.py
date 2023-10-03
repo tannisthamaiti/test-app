@@ -54,7 +54,7 @@ def generate_random_string(length):
     letters = string.ascii_lowercase
     return ''.join(random.choice(letters) for _ in range(length))
 
-DETECT_BUTTON_CLICKED_ONCE = False
+global DETECT_BUTTON_CLICKED_ONCE = False
 
 def main():
     os.makedirs('whole', exist_ok=True)
