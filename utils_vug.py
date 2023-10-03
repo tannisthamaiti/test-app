@@ -6,6 +6,11 @@ from scipy.stats import skew, kurtosis
 import seaborn as sns
 from os.path import join as pjoin
 #from dlisio import dlis
+import copy
+from tqdm import tqdm
+from sklearn.preprocessing import MinMaxScaler
+import streamlit as st
+import PyPDF2
 
 
 def get_logical_file(dlis_file_name, data_path, dyn):
@@ -1191,3 +1196,134 @@ def filter_contour_based_on_mean_pixel_in_and_around_original_contour(fmi, conto
             pass
         
     return filtered_contour, filtered_vugs
+
+def detect_vugs(start, end, tdep_array_doi, fmi_array_doi, well_radius_doi, gt, stride_mode, k, c_threshold, 
+                min_vug_area, max_vug_area, min_circ_ratio, max_circ_ratio, mean_diff_thresh, pred_df, combined_centroids, 
+                final_combined_contour, final_combined_vugs, height_idx, contour_x, contour_y, total_filtered_vugs):
+    for one_meter_zone_start in tqdm(np.arange(start, end, 1)):
+        one_meter_zone_end = one_meter_zone_start + 1
+        
+        # get fmi, depth, well radius and ground truth for one meter zone
+        output = get_one_meter_fmi_and_GT(one_meter_zone_start, one_meter_zone_end, 
+                                        tdep_array_doi, fmi_array_doi, well_radius_doi, gt)
+        fmi_array_one_meter_zone, tdep_array_one_meter_zone, well_radius_one_meter_zone, gtZone = output
+
+        height = fmi_array_one_meter_zone.shape[0]
+
+        # get top k thresholds based on std from the derived one meter zone
+        different_thresholds = get_mode_of_interest_from_image(fmi_array_one_meter_zone, stride_mode, k)
+            
+        # get all the contours from different thresholds for the derived one meter zone
+        for i, diff_thresh in enumerate(different_thresholds):
+            
+            # apply thresholding on the derived one meter zone
+            thresold_img = apply_adaptive_thresholding(fmi_array_one_meter_zone, diff_thresh, block_size = 21, c = c_threshold) #values changed here
+            
+            # get well parameters
+            holeR, pixLen = well_radius_one_meter_zone.mean()*100, (np.diff(tdep_array_one_meter_zone)*100).mean()
+            
+            # get contours and centroids from the thresholded image of the derived one meter zone
+            contours, centroids, vugs = get_contours(thresold_img, depth_to=one_meter_zone_start, 
+                                                        depth_from=one_meter_zone_end, radius = holeR, pix_len = pixLen, 
+                                                        min_vug_area = min_vug_area, max_vug_area = max_vug_area, 
+                                                        min_circ_ratio=min_circ_ratio, max_circ_ratio=max_circ_ratio) #values changed here
+            output = get_combined_contours_and_centroids(contours, centroids, vugs,combined_centroids, 
+                                                            final_combined_contour, final_combined_vugs,i, threshold = 5)
+            combined_centroids, final_combined_contour, final_combined_vugs = output
+
+        # filter the contours based on the contrast of each contour with the original image
+        filtered_contour, filtered_vugs = filter_contours_based_on_original_image(final_combined_contour, final_combined_vugs, 
+                                                                                fmi_array_one_meter_zone, 0.2)
+
+        # saving original filtered contour and vugs in new variable for further use
+        filtered_contour_ = copy.deepcopy(filtered_contour)
+        filtered_vugs_ = copy.deepcopy(filtered_vugs)
+
+        # filter the contours based on the mean pixel in and around the original contour
+        filtered_contour_, filtered_vugs_ = filter_contour_based_on_mean_pixel_in_and_around_original_contour(fmi_array_one_meter_zone, 
+                                                                                                                filtered_contour_, 
+                                                                                                                filtered_vugs_, 
+                                                                                                                threshold = mean_diff_thresh)
+
+
+        # get the contours and centroids from the filtered contours and save them in a list for further use
+        # these saved contours are not relative to 1m zone, but to the whole image
+        total_filtered_vugs.append(filtered_vugs_)
+        for pts in filtered_contour_:
+            x = pts[:, 0, 0]
+            y = pts[:, 0, 1]
+            x = np.append(x, x[0])
+            y = np.append(y, y[0])
+
+            y+=height_idx
+
+            contour_x.append(x)
+            contour_y.append(y)
+
+        detected_vugs_percentage = detected_percent_vugs(filtered_contour_, fmi_array_one_meter_zone, tdep_array_one_meter_zone, 
+                                                        one_meter_zone_start, one_meter_zone_end)
+        pred_df = pd.concat([pred_df, detected_vugs_percentage], axis=0)
+
+        height_idx+=height
+    return pred_df, contour_x, contour_y, total_filtered_vugs
+
+def filter(pred_df, vicinity_threshold, num_rows, vugs_threshold):
+    pred_df_copy = pred_df.reset_index(drop=True)
+    for i in range(len(pred_df_copy)-vicinity_threshold):
+        pred_df_zone = pred_df_copy.iloc[i:i+num_rows]
+        idx_voi = list(pred_df_zone.index)[1]
+        if pred_df_copy.iloc[idx_voi].Vugs<=vugs_threshold:
+            if pred_df_zone.Vugs.max()<=vugs_threshold:
+                pred_df_copy.loc[idx_voi, 'Vugs'] = 0
+    return pred_df_copy
+
+def plot(fmi_zone, pred_df_zone, start, end, contour_x, contour_y, gt):
+    gt_zone = gt[(gt.Depth>=start) & (gt.Depth<=end)]
+
+    coord = [[k, j] for i, (k, j) in enumerate(zip(contour_x, contour_y))]
+
+    _, ax = plt.subplots(1, 4, figsize=(20, 30), gridspec_kw = {'width_ratios': [3,3,1, 1], 'height_ratios': [1]})
+    ax[0].imshow(fmi_zone, cmap='YlOrBr')
+    ax[1].imshow(fmi_zone, cmap='YlOrBr')
+    for x_, y_ in coord:
+        centroid_y = get_centeroid(np.concatenate([x_.reshape(-1, 1), (y_).reshape(-1, 1)], axis=1))[1]
+        scaler = MinMaxScaler((start, end))
+        scaler.fit([[0], [fmi_zone.shape[0]]])
+        centroid_depth = scaler.transform([[centroid_y]])[0][0]
+
+        depth_values, target_value = pred_df_zone.Depth.values, centroid_depth
+
+        # Find the index where the target_value should be inserted
+        insert_index = np.searchsorted(depth_values, target_value, side='right') - 1
+
+        # Check if the target_value is greater than the last depth value, in that case, it will be inserted at the end
+        if insert_index == len(depth_values) - 1 and target_value > depth_values[-1]:
+            insert_index = len(depth_values) - 1
+        if pred_df_zone.iloc[insert_index].Vugs != 0:
+            ax[1].plot(x_, y_, color='black', linewidth=2)
+
+    ax[1].set_xticks([])
+    ax[1].set_yticks([])
+    ax[0].set_xticks([])
+    ax[0].set_yticks([])
+
+    plot_barh(ax[2], pred_df_zone.Depth.values, pred_df_zone['Vugs'].values, 
+                    start, end-0.1, "Pred\n0-25%", max_scale=25, fontsize = 12)
+        
+    plot_barh(ax[3], gt_zone.Depth.values, gt_zone['Vugs'].values, 
+                    start, end-0.1, "GT\n0-25%", max_scale=25, fontsize = 12)
+
+    ax[0].set_title("Original FMI", fontsize=12)
+    ax[1].set_title("Contours", fontsize=12)
+
+    plt.tight_layout()
+    plt.savefig(f"whole/{start}-{end}.pdf", dpi=400, bbox_inches='tight')
+    st.pyplot(plt)
+
+def merge_pdfs(pdf_paths):
+    merged_pdf = PyPDF2.PdfMerger()
+    
+    for pdf_path in pdf_paths:
+        merged_pdf.append(pjoin('whole', pdf_path))
+
+    return merged_pdf
