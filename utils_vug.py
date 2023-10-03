@@ -733,7 +733,7 @@ def plot_original_image_axis(image, start, end, ax, title, fontsize = 8):
     """Plot the original image"""
     ax.imshow(image, cmap='YlOrBr')
     ax.set_title(title, fontsize = fontsize)
-    ax.set_yticks(np.linspace(0, image.shape[0], 10).round(2), np.linspace(start, end, 10).round(2))
+    ax.set_yticks(np.linspace(0, image.shape[0], 10).round(2), np.linspace(start, end, 10).round(2), fontsize = fontsize)
 
 def plot_contour_axis(image, contours, title, ax, fontsize = 8, linewidth = 2):
     """
@@ -793,6 +793,8 @@ def plot_barh(ax, y, x, one_meter_zone_start, one_meter_zone_end, title, max_sca
     ax.set_xlim(0, max_scale)
     ax.set_ylim(one_meter_zone_end, one_meter_zone_start)
     ax.set_title(title, fontsize = fontsize)
+    ax.tick_params(axis='y', labelsize=fontsize)
+    ax.tick_params(axis='x', labelsize=fontsize)
 
 def convert_vugs_to_df(filtered_vugs):
     """converts the vugs to dataframe
@@ -1323,6 +1325,7 @@ def plot(fmi_zone, pred_df_zone, start, end, contour_x, contour_y, gt, fontsize 
 def merge_pdfs(pdf_paths):
     pdf_paths = [float(i[:-4]) for i in pdf_paths]
     pdf_paths.sort()
+    print(pdf_paths)
     merged_pdf = PyPDF2.PdfMerger()
     
     for pdf_path in pdf_paths:
