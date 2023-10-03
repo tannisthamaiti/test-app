@@ -54,7 +54,7 @@ def generate_random_string(length):
     letters = string.ascii_lowercase
     return ''.join(random.choice(letters) for _ in range(length))
 
-def main(DETECT_BUTTON_CLICKED_ONCE):
+def main():
     os.makedirs('whole', exist_ok=True)
     script_dir = os.path.dirname(os.path.abspath(__file__))
     os.chdir(script_dir)
@@ -180,174 +180,173 @@ def main(DETECT_BUTTON_CLICKED_ONCE):
 
         max_scale = st.number_input("Max Bar Graph Scale", value=default_max_scale)
 
-        detect_vugs_button = st.button("Detect Vugs")
+        # detect_vugs_button = st.button("Detect Vugs")
 
-        if detect_vugs_button:
-            DETECT_BUTTON_CLICKED_ONCE = True
+        # if detect_vugs_button:
+            # DETECT_BUTTON_CLICKED_ONCE = True
+        mask = (tdep_array>=start) & (tdep_array<=end)
+
+        tdep_array_doi = tdep_array[mask]
+        fmi_array_doi = fmi_array[mask]
+        well_radius_doi = well_radius[mask]
+
+        pred_df, contour_x, contour_y, total_filtered_vugs = detect_vugs(start, end, tdep_array_doi, fmi_array_doi, well_radius_doi, gt, stride_mode, k, c_threshold, 
+                                                    min_vug_area, max_vug_area, min_circ_ratio, max_circ_ratio, mean_diff_thresh, pred_df, 
+                                                    combined_centroids, final_combined_contour, final_combined_vugs, height_idx, contour_x, contour_y, total_filtered_vugs)
+
+        pred_df = filter(pred_df, vicinity_threshold, num_rows, vugs_threshold)
+        df1 = pred_df
+
+        plot(fmi_array_doi, pred_df, start, end, contour_x, contour_y, gt, fontsize = 25, max_scale = max_scale)
+
+        # if DETECT_BUTTON_CLICKED_ONCE:
+
+        if st.button('Show Statistical Analysis'):
+            filtered_vugs = [i['area'] for filtered_vugs_ in total_filtered_vugs for i in filtered_vugs_]
+
+            fig1, ax = plt.subplots()
+            sns.histplot(filtered_vugs, ax=ax)
+            st.pyplot(fig1)
+
+        
+        st.divider()    
+        col1,col2 = st.columns(2)
+        
+        with col1:
+            # values after the user changes parameters
+            new_default_min_vug_area = 0.5
+            new_default_max_vug_area = 10.28
+            new_default_min_circ_ratio = 0.5
+            new_default_max_circ_ratio = 1.0
+
+            min_vug_area = st.number_input("Min Vug Area (default: 0.5)", value=new_default_min_vug_area)
+            max_vug_area = st.number_input("Max Vug Area (default: 10.28)", value=new_default_max_vug_area)
+            min_circ_ratio = st.number_input("Min Circ Ratio (default: 0.5)", value=new_default_min_circ_ratio)
+            max_circ_ratio = st.number_input("Max Circ Ratio (default: 1.0)", value=new_default_max_circ_ratio)
+
+            # reset_button = st.button("Reset Values")
+
+            # if reset_button:
+            #     # min_vug_area = new_default_min_vug_area
+            #     min_vug_area = 0.5
+            #     max_vug_area = new_default_max_vug_area
+            #     min_circ_ratio = new_default_min_circ_ratio
+            #     max_circ_ratio = new_default_max_circ_ratio
+
+            
+        with col2:
+            # reitrerate button for changed parameters 4 values
+            st.markdown("Accept Original Interpretation")
+            accepted_button = st.button("Accept")
+            if accepted_button:
+                st.success("Accepted Original Interpretation!!")
+                status = "Accepted"
+                zone_start = start
+                zone_end = end
+                # # accepted_range = {'start': [start], 'end': [end], 'status': ['Accepted']}
+                # accepted_range = pd.DataFrame({'start': [zone_start], 'end': [zone_end], 'status': ['Accepted']})
+                # # data = data.concat([data, accepted_range], ignore_index=True)
+                # data = pd.concat([data, accepted_range], ignore_index=True)
+                cursor.execute('''
+                    INSERT INTO ranges (start, end, status)
+                    VALUES (?, ?, ?)
+                ''', (zone_start, zone_end, 'accepted'))
+                conn.commit()
+
+            st.markdown("Flag Original Interpretation")
+            flag_button = st.button("Flag")
+            if flag_button:
+                st.success("Flagged original Interpretation")
+                status = "Flagged"
+                zone_start = start
+                zone_end = end
+                # flagged_range = pd.DataFrame({'start': [zone_start], 'end': [zone_end], 'status': ['Flagged']})
+                # data = pd.concat([data, flagged_range], ignore_index=True)
+                cursor.execute('''
+                INSERT INTO ranges (start, end, status)
+                    VALUES (?, ?, ?)
+                ''', (zone_start, zone_end, 'flagged'))
+                conn.commit()
+            
+            st.markdown("Change parameters for selected depth")
+            reiterate_button = st.button("Reiterate")
+            
+            st.markdown("Click here to download report")
+            cursor.execute('SELECT * FROM ranges')
+            rows = cursor.fetchall()
+            csv_data = pd.DataFrame(rows, columns=['start', 'end', 'status']).to_csv(index=False)
+            st.download_button(
+                label="Download Report",
+                data=csv_data,
+                file_name="accepted_flagged_ranges.csv",
+                key="download_ranges_button"
+            )
+
+            # Convert the dataframe to CSV format
+            # status = "Test"
+            # df1 = [{key: round(value, 4) for key, value in inner_dict.items()} for inner_dict in df1]
+            df1 = pd.DataFrame(df1)
+            # df1['Status'] = status
+            csv_data = df1.to_csv(index=False)
+
+            # Create a download button for the CSV file
+            st.download_button(
+                label="Click here to download report for depth along with vug predicted",
+                data=csv_data,
+                file_name="depth_vs_vug.csv",
+                key="download_vug_prediction_button"
+            )
+
+            if st.button("Generate Report"):
+                pdf_paths = os.listdir('whole')
+                pdf_paths = [pdf_path for pdf_path in pdf_paths if pdf_path.endswith('.pdf')]
+                merged_pdf = merge_pdfs(pdf_paths)
+                
+                # Provide a way to download the merged PDF
+                pdf_data = io.BytesIO()
+                merged_pdf.write(pdf_data)
+                pdf_data.seek(0)
+
+                st.success("Report Generated successfully! Click below to download:")
+                st.download_button(label="Download Report", data=pdf_data, file_name="merged.pdf", key="merged_pdf")
+                st.success("Download will start soon!")
+
+                shutil.rmtree('whole')
+
+                
+        st.divider()   
+        if reiterate_button:
+            combined_centroids, final_combined_contour, final_combined_vugs = [], [], []
+            contour_x, contour_y = [], []
+            total_filtered_vugs =[]
+            pred_df = pd.DataFrame()
+            # button_clicked(reiterate_button, tdep_array, fmi_array, well_radius_doi, gt,start,end,min_vug_area,max_vug_area, min_circ_ratio, max_circ_ratio)
             mask = (tdep_array>=start) & (tdep_array<=end)
-
             tdep_array_doi = tdep_array[mask]
             fmi_array_doi = fmi_array[mask]
             well_radius_doi = well_radius[mask]
+            button_clicked(start, end, tdep_array_doi, fmi_array_doi, well_radius_doi, gt, stride_mode, k, c_threshold, 
+                min_vug_area, max_vug_area, min_circ_ratio, max_circ_ratio, mean_diff_thresh, pred_df, combined_centroids, 
+                final_combined_contour, final_combined_vugs, height_idx, contour_x, contour_y, total_filtered_vugs, vicinity_threshold, num_rows, vugs_threshold)
+            cursor.execute('''
+                UPDATE ranges
+                SET status = ?
+                WHERE start = ? AND end = ?
+            ''', ('evaluated', start, end))
+            conn.commit()
 
-            pred_df, contour_x, contour_y, total_filtered_vugs = detect_vugs(start, end, tdep_array_doi, fmi_array_doi, well_radius_doi, gt, stride_mode, k, c_threshold, 
-                                                        min_vug_area, max_vug_area, min_circ_ratio, max_circ_ratio, mean_diff_thresh, pred_df, 
-                                                        combined_centroids, final_combined_contour, final_combined_vugs, height_idx, contour_x, contour_y, total_filtered_vugs)
+        if not data.empty:
+            st.markdown("Download Accepted and Flagged Ranges")
 
-            pred_df = filter(pred_df, vicinity_threshold, num_rows, vugs_threshold)
-            df1 = pred_df
-
-            plot(fmi_array_doi, pred_df, start, end, contour_x, contour_y, gt, fontsize = 25, max_scale = max_scale)
-
-        if DETECT_BUTTON_CLICKED_ONCE:
-
-            if st.button('Show Statistical Analysis'):
-                filtered_vugs = [i['area'] for filtered_vugs_ in total_filtered_vugs for i in filtered_vugs_]
-
-                fig1, ax = plt.subplots()
-                sns.histplot(filtered_vugs, ax=ax)
-                st.pyplot(fig1)
-
-            
-            st.divider()    
-            col1,col2 = st.columns(2)
-            
-            with col1:
-                # values after the user changes parameters
-                new_default_min_vug_area = 0.5
-                new_default_max_vug_area = 10.28
-                new_default_min_circ_ratio = 0.5
-                new_default_max_circ_ratio = 1.0
-
-                min_vug_area = st.number_input("Min Vug Area (default: 0.5)", value=new_default_min_vug_area)
-                max_vug_area = st.number_input("Max Vug Area (default: 10.28)", value=new_default_max_vug_area)
-                min_circ_ratio = st.number_input("Min Circ Ratio (default: 0.5)", value=new_default_min_circ_ratio)
-                max_circ_ratio = st.number_input("Max Circ Ratio (default: 1.0)", value=new_default_max_circ_ratio)
-
-                # reset_button = st.button("Reset Values")
-
-                # if reset_button:
-                #     # min_vug_area = new_default_min_vug_area
-                #     min_vug_area = 0.5
-                #     max_vug_area = new_default_max_vug_area
-                #     min_circ_ratio = new_default_min_circ_ratio
-                #     max_circ_ratio = new_default_max_circ_ratio
-
-                
-            with col2:
-                # reitrerate button for changed parameters 4 values
-                st.markdown("Accept Original Interpretation")
-                accepted_button = st.button("Accept")
-                if accepted_button:
-                    st.success("Accepted Original Interpretation!!")
-                    status = "Accepted"
-                    zone_start = start
-                    zone_end = end
-                    # # accepted_range = {'start': [start], 'end': [end], 'status': ['Accepted']}
-                    # accepted_range = pd.DataFrame({'start': [zone_start], 'end': [zone_end], 'status': ['Accepted']})
-                    # # data = data.concat([data, accepted_range], ignore_index=True)
-                    # data = pd.concat([data, accepted_range], ignore_index=True)
-                    cursor.execute('''
-                        INSERT INTO ranges (start, end, status)
-                        VALUES (?, ?, ?)
-                    ''', (zone_start, zone_end, 'accepted'))
-                    conn.commit()
-
-                st.markdown("Flag Original Interpretation")
-                flag_button = st.button("Flag")
-                if flag_button:
-                    st.success("Flagged original Interpretation")
-                    status = "Flagged"
-                    zone_start = start
-                    zone_end = end
-                    # flagged_range = pd.DataFrame({'start': [zone_start], 'end': [zone_end], 'status': ['Flagged']})
-                    # data = pd.concat([data, flagged_range], ignore_index=True)
-                    cursor.execute('''
-                    INSERT INTO ranges (start, end, status)
-                        VALUES (?, ?, ?)
-                    ''', (zone_start, zone_end, 'flagged'))
-                    conn.commit()
-                
-                st.markdown("Change parameters for selected depth")
-                reiterate_button = st.button("Reiterate")
-                
-                st.markdown("Click here to download report")
-                cursor.execute('SELECT * FROM ranges')
-                rows = cursor.fetchall()
-                csv_data = pd.DataFrame(rows, columns=['start', 'end', 'status']).to_csv(index=False)
-                st.download_button(
-                    label="Download Report",
-                    data=csv_data,
-                    file_name="accepted_flagged_ranges.csv",
-                    key="download_ranges_button"
-                )
-
-                # Convert the dataframe to CSV format
-                # status = "Test"
-                # df1 = [{key: round(value, 4) for key, value in inner_dict.items()} for inner_dict in df1]
-                df1 = pd.DataFrame(df1)
-                # df1['Status'] = status
-                csv_data = df1.to_csv(index=False)
-
-                # Create a download button for the CSV file
-                st.download_button(
-                    label="Click here to download report for depth along with vug predicted",
-                    data=csv_data,
-                    file_name="depth_vs_vug.csv",
-                    key="download_vug_prediction_button"
-                )
-
-                if st.button("Generate Report"):
-                    pdf_paths = os.listdir('whole')
-                    pdf_paths = [pdf_path for pdf_path in pdf_paths if pdf_path.endswith('.pdf')]
-                    merged_pdf = merge_pdfs(pdf_paths)
-                    
-                    # Provide a way to download the merged PDF
-                    pdf_data = io.BytesIO()
-                    merged_pdf.write(pdf_data)
-                    pdf_data.seek(0)
-
-                    st.success("Report Generated successfully! Click below to download:")
-                    st.download_button(label="Download Report", data=pdf_data, file_name="merged.pdf", key="merged_pdf")
-                    st.success("Download will start soon!")
-
-                    shutil.rmtree('whole')
-
-                    
-            st.divider()   
-            if reiterate_button:
-                combined_centroids, final_combined_contour, final_combined_vugs = [], [], []
-                contour_x, contour_y = [], []
-                total_filtered_vugs =[]
-                pred_df = pd.DataFrame()
-                # button_clicked(reiterate_button, tdep_array, fmi_array, well_radius_doi, gt,start,end,min_vug_area,max_vug_area, min_circ_ratio, max_circ_ratio)
-                mask = (tdep_array>=start) & (tdep_array<=end)
-                tdep_array_doi = tdep_array[mask]
-                fmi_array_doi = fmi_array[mask]
-                well_radius_doi = well_radius[mask]
-                button_clicked(start, end, tdep_array_doi, fmi_array_doi, well_radius_doi, gt, stride_mode, k, c_threshold, 
-                    min_vug_area, max_vug_area, min_circ_ratio, max_circ_ratio, mean_diff_thresh, pred_df, combined_centroids, 
-                    final_combined_contour, final_combined_vugs, height_idx, contour_x, contour_y, total_filtered_vugs, vicinity_threshold, num_rows, vugs_threshold)
-                cursor.execute('''
-                    UPDATE ranges
-                    SET status = ?
-                    WHERE start = ? AND end = ?
-                ''', ('evaluated', start, end))
-                conn.commit()
-
-            if not data.empty:
-                st.markdown("Download Accepted and Flagged Ranges")
-
-                cursor.execute('SELECT * FROM ranges')
-                rows = cursor.fetchall()
-                csv_data = pd.DataFrame(rows, columns=['start', 'end', 'status']).to_csv(index=False)
-                st.download_button(
-                    label="Click here",
-                    data=csv_data,
-                    file_name="accepted_flagged_report.csv",
-                    key="download_ranges_button"
-                )
-            conn.close()
+            cursor.execute('SELECT * FROM ranges')
+            rows = cursor.fetchall()
+            csv_data = pd.DataFrame(rows, columns=['start', 'end', 'status']).to_csv(index=False)
+            st.download_button(
+                label="Click here",
+                data=csv_data,
+                file_name="accepted_flagged_report.csv",
+                key="download_ranges_button"
+            )
+        conn.close()
 if __name__ == "__main__":
-    DETECT_BUTTON_CLICKED_ONCE = False
-    main(DETECT_BUTTON_CLICKED_ONCE)
+    main()
