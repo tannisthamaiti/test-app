@@ -302,7 +302,7 @@ def main():
                 merged_pdf.write(pdf_data)
                 pdf_data.seek(0)
 
-                st.success("PDFs merged successfully! Click below to download:")
+                st.success("Report Generated successfully! Click below to download:")
                 st.download_button(label="Download Report", data=pdf_data, file_name="merged.pdf", key="merged_pdf")
 
                 shutil.rmtree('whole')
