@@ -54,9 +54,6 @@ def generate_random_string(length):
     letters = string.ascii_lowercase
     return ''.join(random.choice(letters) for _ in range(length))
 
-global DETECT_BUTTON_CLICKED_ONCE 
-DETECT_BUTTON_CLICKED_ONCE = False
-
 def main():
     os.makedirs('whole', exist_ok=True)
     script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -352,4 +349,6 @@ def main():
                 )
             conn.close()
 if __name__ == "__main__":
+    global DETECT_BUTTON_CLICKED_ONCE 
+    DETECT_BUTTON_CLICKED_ONCE = False
     main()
