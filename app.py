@@ -1,24 +1,24 @@
 import base64
 import copy
+import io
 import os
 import random
 import sqlite3
 import string
 import threading
 import time
+from os.path import join as pjoin
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import PyPDF2
 import seaborn as sns
 import streamlit as st
 from dlisio import dlis
 from sklearn.preprocessing import MinMaxScaler
 from tqdm import tqdm
-from os.path import join as pjoin
-import io
 
-import PyPDF2
 from utils_vug import *
 
 # def inital_plot(tdep_array, fmi_array, well_radius_doi, gt,start,end,min_vug_area,max_vug_area,min_circ_ratio,max_circ_ratio):
@@ -364,7 +364,7 @@ def main():
     st.header("Automatic vug analysis from FMI logs")
     df1 = []
     
-    conn = sqlite3.connect('your_database_name.db')
+    conn = sqlite3.connect('your_database.db')
     cursor = conn.cursor()
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS ranges (
