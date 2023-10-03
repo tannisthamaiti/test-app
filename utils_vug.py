@@ -1317,13 +1317,15 @@ def plot(fmi_zone, pred_df_zone, start, end, contour_x, contour_y, gt, fontsize 
     ax[1].set_title("Contours", fontsize=fontsize)
 
     plt.tight_layout()
-    plt.savefig(f"whole/{start}-{end}.pdf", dpi=400, bbox_inches='tight')
+    plt.savefig(f"whole/{start}.pdf", dpi=400, bbox_inches='tight')
     st.pyplot(plt)
 
 def merge_pdfs(pdf_paths):
+    pdf_paths = [float(i[:-4]) for i in pdf_paths]
+    pdf_paths.sort()
     merged_pdf = PyPDF2.PdfMerger()
     
     for pdf_path in pdf_paths:
-        merged_pdf.append(pjoin('whole', pdf_path))
+        merged_pdf.append(pjoin('whole', f"{pdf_path}.pdf"))
 
     return merged_pdf
