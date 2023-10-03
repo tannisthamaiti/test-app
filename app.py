@@ -185,6 +185,7 @@ def main():
         detect_vugs_button = st.button("Detect Vugs")
 
         if detect_vugs_button:
+            DETECT_BUTTON_CLICKED_ONCE = True
             mask = (tdep_array>=start) & (tdep_array<=end)
 
             tdep_array_doi = tdep_array[mask]
