@@ -311,7 +311,6 @@ def main():
 
                 st.success("Report Generated successfully! Click below to download:")
                 st.download_button(label="Download Report", data=pdf_data, file_name="merged.pdf", key="merged_pdf")
-                st.success("Download will start soon!")
 
                 shutil.rmtree('whole')
 
