@@ -1323,9 +1323,9 @@ def plot(fmi_zone, pred_df_zone, start, end, contour_x, contour_y, gt, fontsize 
     st.pyplot(plt)
 
 def merge_pdfs(pdf_paths):
+    print(pdf_paths)
     pdf_paths = [float(i[:-4]) for i in pdf_paths]
     pdf_paths.sort()
-    print(pdf_paths)
     merged_pdf = PyPDF2.PdfMerger()
     
     for pdf_path in pdf_paths:
