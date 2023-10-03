@@ -15,6 +15,8 @@ import pandas as pd
 import PyPDF2
 import seaborn as sns
 import streamlit as st
+import shutil
+
 from dlisio import dlis
 from sklearn.preprocessing import MinMaxScaler
 from tqdm import tqdm
@@ -54,6 +56,7 @@ def generate_random_string(length):
 
 
 def main():
+    os.makedirs('whole', exist_ok=True)
     script_dir = os.path.dirname(os.path.abspath(__file__))
     os.chdir(script_dir)
     # st.set_page_config(page_title="Vug Detection", page_icon="🤖", layout="wide", )  
@@ -301,6 +304,8 @@ def main():
 
                 st.success("PDFs merged successfully! Click below to download:")
                 st.download_button(label="Download Report", data=pdf_data, file_name="merged.pdf", key="merged_pdf")
+
+                shutil.rmtree('whole')
 
                 
         st.divider()   
