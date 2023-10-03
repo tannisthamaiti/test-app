@@ -45,7 +45,7 @@ def button_clicked(start, end, tdep_array_doi, fmi_array_doi, well_radius_doi, g
     pred_df = filter(pred_df, vicinity_threshold, num_rows, vugs_threshold)
     df1 = pred_df
 
-    plot(fmi_array_doi, pred_df, start, end, contour_x, contour_y, gt)
+    plot(fmi_array_doi, pred_df, start, end, contour_x, contour_y, gt, fontsize = 15)
 
 
 def generate_random_string(length):
@@ -188,7 +188,7 @@ def main():
         pred_df = filter(pred_df, vicinity_threshold, num_rows, vugs_threshold)
         df1 = pred_df
 
-        plot(fmi_array_doi, pred_df, start, end, contour_x, contour_y, gt)
+        plot(fmi_array_doi, pred_df, start, end, contour_x, contour_y, gt, fontsize = 15)
 
         if st.button('Show Statistical Analysis'):
             filtered_vugs = [i['area'] for filtered_vugs_ in total_filtered_vugs for i in filtered_vugs_]
