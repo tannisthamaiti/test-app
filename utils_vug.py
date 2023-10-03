@@ -787,14 +787,14 @@ def plot_barh(ax, y, x, one_meter_zone_start, one_meter_zone_end, title, max_sca
     None
     """
     ax.barh(y, x, align='center', height=0.08)
+    ax.tick_params(axis='y', labelsize=fontsize)
+    ax.tick_params(axis='x', labelsize=fontsize)
     for i in range(vlines, 100, vlines):
         ax.vlines(i, one_meter_zone_start, one_meter_zone_end, colors=colors, linestyles=linestyles, linewidth=linewidth)
     ax.invert_yaxis()
     ax.set_xlim(0, max_scale)
     ax.set_ylim(one_meter_zone_end, one_meter_zone_start)
     ax.set_title(title, fontsize = fontsize)
-    ax.tick_params(axis='y', labelsize=fontsize)
-    ax.tick_params(axis='x', labelsize=fontsize)
 
 def convert_vugs_to_df(filtered_vugs):
     """converts the vugs to dataframe
