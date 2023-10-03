@@ -1279,7 +1279,7 @@ def filter(pred_df, vicinity_threshold, num_rows, vugs_threshold):
                 pred_df_copy.loc[idx_voi, 'Vugs'] = 0
     return pred_df_copy
 
-def plot(fmi_zone, pred_df_zone, start, end, contour_x, contour_y, gt, fontsize = 12):
+def plot(fmi_zone, pred_df_zone, start, end, contour_x, contour_y, gt, fontsize = 12, max_scale = 25):
     gt_zone = gt[(gt.Depth>=start) & (gt.Depth<=end)]
 
     coord = [[k, j] for i, (k, j) in enumerate(zip(contour_x, contour_y))]
@@ -1310,10 +1310,10 @@ def plot(fmi_zone, pred_df_zone, start, end, contour_x, contour_y, gt, fontsize 
     ax[0].set_yticks([])
 
     plot_barh(ax[2], pred_df_zone.Depth.values, pred_df_zone['Vugs'].values, 
-                    start, end-0.1, "Pred\n0-25%", max_scale=25, fontsize = fontsize)
+                    start, end-0.1, f"Pred\n0-{max_scale}%", max_scale=max_scale, fontsize = fontsize)
         
     plot_barh(ax[3], gt_zone.Depth.values, gt_zone['Vugs'].values, 
-                    start, end-0.1, "GT\n0-25%", max_scale=25, fontsize = fontsize)
+                    start, end-0.1, f"GT\n0-{max_scale}%", max_scale=max_scale, fontsize = fontsize)
 
     ax[0].set_title("Original FMI", fontsize=fontsize)
     ax[1].set_title("Contours", fontsize=fontsize)
@@ -1323,7 +1323,6 @@ def plot(fmi_zone, pred_df_zone, start, end, contour_x, contour_y, gt, fontsize 
     st.pyplot(plt)
 
 def merge_pdfs(pdf_paths):
-    print(pdf_paths)
     pdf_paths = [float(i[:-4]) for i in pdf_paths]
     pdf_paths.sort()
     merged_pdf = PyPDF2.PdfMerger()

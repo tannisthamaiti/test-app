@@ -170,10 +170,13 @@ def main():
 
         default_start = 2739.02
         default_end = 2745.02
+        default_max_scale = 25
         with col1:
             start = st.number_input("Min Depth ", value=default_start)
         with col2:
             end = st.number_input("Max Depth", value=default_end)
+
+        max_scale = st.number_input("Max Bar Graph Scale", value=default_max_scale)
 
         mask = (tdep_array>=start) & (tdep_array<=end)
 
@@ -188,7 +191,7 @@ def main():
         pred_df = filter(pred_df, vicinity_threshold, num_rows, vugs_threshold)
         df1 = pred_df
 
-        plot(fmi_array_doi, pred_df, start, end, contour_x, contour_y, gt, fontsize = 25)
+        plot(fmi_array_doi, pred_df, start, end, contour_x, contour_y, gt, fontsize = 25, max_scale = max_scale)
 
         if st.button('Show Statistical Analysis'):
             filtered_vugs = [i['area'] for filtered_vugs_ in total_filtered_vugs for i in filtered_vugs_]
