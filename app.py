@@ -203,7 +203,6 @@ def main():
 
         tdep_array_doi = tdep_array[mask]
         fmi_array_doi = fmi_array[mask]
-        print(fmi_array_doi)
         well_radius_doi = well_radius[mask]
 
         pred_df, contour_x, contour_y, total_filtered_vugs = detect_vugs(start, end, tdep_array_doi, fmi_array_doi, well_radius_doi, gt, stride_mode, k, c_threshold, 
