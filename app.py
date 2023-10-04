@@ -93,17 +93,7 @@ def main():
     def clear_database_periodically():
         while True:
             time.sleep(600)  # Sleep for 10 minutes
-            conn2 = sqlite3.connect('your_database.db')
-            cursor2 = conn.cursor()
-            cursor2.execute('''
-                CREATE TABLE IF NOT EXISTS ranges (
-                    start REAL,
-                    end REAL,
-                    status TEXT
-                )
-            ''')
-            cursor2.execute("DELETE FROM ranges")
-            conn2.commit()
+            clear_database()
 
 
     # Start the background thread to clear the database
