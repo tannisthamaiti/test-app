@@ -126,6 +126,9 @@ def main():
         tdep_array = tdep_array.reshape(-1) 
         well_radius = well_radius.reshape(-1)
 
+        fmi_array[fmi_array == -9999.0] = np.nan
+        fmi_array = MinMaxScalerCustom(fmi_array, min = 0, max = 255)
+
         ##########################################################
         # Display PDF here 
         ########################################################
