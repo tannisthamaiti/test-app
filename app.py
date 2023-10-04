@@ -3,6 +3,7 @@ import copy
 import io
 import os
 import random
+import shutil
 import sqlite3
 import string
 import threading
@@ -15,13 +16,12 @@ import pandas as pd
 import PyPDF2
 import seaborn as sns
 import streamlit as st
-import shutil
-
 from dlisio import dlis
 from sklearn.preprocessing import MinMaxScaler
 from tqdm import tqdm
 
 from utils_vug import *
+
 
 def st_display_pdf(pdf_file):
     '''
@@ -77,14 +77,24 @@ def main():
         cursor.execute("INSERT INTO ranges (status) VALUES (?)", (button_name,))
         conn.commit()
 
-    def clear_database():
-        cursor.execute("DELETE FROM ranges")
-        conn.commit()
+    def clear_database():    
+        conn2 = sqlite3.connect('your_database.db')
+        cursor2 = conn.cursor()
+        cursor2.execute('''
+            CREATE TABLE IF NOT EXISTS ranges (
+                start REAL,
+                end REAL,
+                status TEXT
+            )
+        ''')
+        cursor2.execute("DELETE FROM ranges")
+        conn2.commit()
 
     def clear_database_periodically():
         while True:
             time.sleep(600)  # Sleep for 10 minutes
             clear_database()
+
 
     # Start the background thread to clear the database
     clear_thread = threading.Thread(target=clear_database_periodically)
