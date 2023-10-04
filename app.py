@@ -165,8 +165,6 @@ def main():
         vugs_threshold = 1
         vicinity_threshold = 1
         num_rows = (vicinity_threshold*2)+1
-        vugs_threshold = 1
-        vicinity_threshold = 1
         combined_centroids, final_combined_contour, final_combined_vugs = [], [], []
         contour_x, contour_y = [], []
         total_filtered_vugs =[]
