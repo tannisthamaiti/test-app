@@ -126,8 +126,6 @@ def main():
         tdep_array = tdep_array.reshape(-1) 
         well_radius = well_radius.reshape(-1)
 
-        print(fmi_array == -9999.0)
-
         fmi_array[fmi_array == -9999.0] = np.nan
         fmi_array = MinMaxScalerCustom(fmi_array, min = 0, max = 255)
 
@@ -205,6 +203,7 @@ def main():
 
         tdep_array_doi = tdep_array[mask]
         fmi_array_doi = fmi_array[mask]
+        print(fmi_array_doi)
         well_radius_doi = well_radius[mask]
 
         pred_df, contour_x, contour_y, total_filtered_vugs = detect_vugs(start, end, tdep_array_doi, fmi_array_doi, well_radius_doi, gt, stride_mode, k, c_threshold, 
