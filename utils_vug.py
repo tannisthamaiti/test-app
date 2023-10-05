@@ -1214,7 +1214,7 @@ def detect_vugs(start, end, tdep_array_doi, fmi_array_doi, well_radius_doi, gt, 
 
         # get top k thresholds based on std from the derived one meter zone
         different_thresholds = get_mode_of_interest_from_image(fmi_array_one_meter_zone, stride_mode, k)
-            
+        print(different_thresholds)
         # get all the contours from different thresholds for the derived one meter zone
         for i, diff_thresh in enumerate(different_thresholds):
             
@@ -1229,7 +1229,7 @@ def detect_vugs(start, end, tdep_array_doi, fmi_array_doi, well_radius_doi, gt, 
                                                         depth_from=one_meter_zone_end, radius = holeR, pix_len = pixLen, 
                                                         min_vug_area = min_vug_area, max_vug_area = max_vug_area, 
                                                         min_circ_ratio=min_circ_ratio, max_circ_ratio=max_circ_ratio) #values changed here
-            st.caption(i, len(contours))
+            print(i, len(contours))
             output = get_combined_contours_and_centroids(contours, centroids, vugs,combined_centroids, 
                                                             final_combined_contour, final_combined_vugs,i, threshold = 5)
             combined_centroids, final_combined_contour, final_combined_vugs = output
