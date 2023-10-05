@@ -167,19 +167,21 @@ def main():
                 WHERE start = ? AND end = ?
             ''', ('evaluated', start, end))
         conn.commit()
+        st.divider()    
+        col1,col2 = st.columns(2)
+        with col1:
+            if not data.empty:
+                st.markdown("Download Accepted and Flagged Ranges")
 
-        if not data.empty:
-            st.markdown("Download Accepted and Flagged Ranges")
-
-            cursor.execute('SELECT * FROM ranges')
-            rows = cursor.fetchall()
-            csv_data = pd.DataFrame(rows, columns=['start', 'end', 'status']).to_csv(index=False)
-            st.download_button(
-                label="Click here",
-                data=csv_data,
-                file_name="accepted_flagged_report.csv",
-                key="download_ranges_button"
-            )
+                cursor.execute('SELECT * FROM ranges')
+                rows = cursor.fetchall()
+                csv_data = pd.DataFrame(rows, columns=['start', 'end', 'status']).to_csv(index=False)
+                st.download_button(
+                    label="Click here",
+                    data=csv_data,
+                    file_name="accepted_flagged_report.csv",
+                    key="download_ranges_button"
+                )
         conn.close()
 if __name__ == "__main__":
     main()
