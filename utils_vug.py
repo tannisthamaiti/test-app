@@ -1211,7 +1211,8 @@ def detect_vugs(start, end, tdep_array_doi, fmi_array_doi, well_radius_doi, gt, 
         fmi_array_one_meter_zone, tdep_array_one_meter_zone, well_radius_one_meter_zone, gtZone = output
 
         height = fmi_array_one_meter_zone.shape[0]
-
+        print(fmi_array_one_meter_zone)
+        print(stride_mode, k)
         # get top k thresholds based on std from the derived one meter zone
         different_thresholds = get_mode_of_interest_from_image(fmi_array_one_meter_zone, stride_mode, k)
         print(different_thresholds)
