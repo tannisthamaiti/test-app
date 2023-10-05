@@ -127,7 +127,6 @@ def main():
         well_radius = well_radius.reshape(-1)
 
         fmi_array[fmi_array == -9999.0] = np.nan
-        st.caption("{}-{}".format(np.nanmin(fmi_array), np.nanmax(fmi_array)))
         fmi_array = MinMaxScalerCustom(fmi_array, min = 0, max = 255)
 
         ##########################################################
