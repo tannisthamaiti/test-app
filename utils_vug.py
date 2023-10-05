@@ -1191,3 +1191,101 @@ def filter_contour_based_on_mean_pixel_in_and_around_original_contour(fmi, conto
             pass
         
     return filtered_contour, filtered_vugs
+
+def plot_sinusoids(DOI, dep, ax, linewidth, bbColor, Fcolor):
+
+    for row in DOI.iterrows():
+        row = row[1]
+        amp, phase = calculateAmpPhase(row["Dip"],row["Azimuth"],0.108)
+        x_line, y_line = createSinusoid(amp,phase)
+        y_line = y_line + row.Depth
+        new_y = []
+        for i in y_line:
+            new_y.append(find_nearest(dep, i))
+        if row.Type == 'Bb':
+            ax.plot(new_y, bbColor, linewidth = linewidth)
+        else:
+            ax.plot(new_y, Fcolor, linewidth = linewidth)
+
+def tadpolePlotGTComparison(df, ax, sinTypeStart, color, scaler):
+
+    for rows in df.iterrows():
+        if rows[1].Type.lower().startswith(sinTypeStart.lower()):
+
+            ax.plot(rows[1].Dip, int(scaler.transform([[rows[1].Depth]])), marker = '.', markersize = 10, 
+                    color = color)
+            ax.plot(rows[1].Dip, int(scaler.transform([[rows[1].Depth]])), marker = (1, 2, -rows[1].Azimuth), 
+                    markersize = 40, color = color)
+
+def comparison_plot(fmiZone, tdepZone, zoneStart, gtZone,  predZone, zoneEnd, tadpoleScaler, fmiRatio, fontSize, linewidth, 
+                    save_path, dpi = 50, figsize = (20, 25), save = True, split = False):
+    _, ax = plt.subplots(1, 4, sharey = True, figsize = figsize,
+                         gridspec_kw = {'width_ratios': [fmiRatio, fmiRatio, fmiRatio, 1]})
+    
+    ax[0].imshow(fmiZone, cmap = 'YlOrBr')
+    ax[1].imshow(fmiZone, cmap = 'YlOrBr')
+    ax[2].imshow(fmiZone, cmap = 'YlOrBr')
+    ax[3].imshow(np.zeros((fmiZone.shape[0], 90)), cmap = 'gray', vmin = -10, vmax = 0)
+    
+    plt.yticks(np.linspace(0, tdepZone.shape[0], 10), np.linspace(zoneStart, zoneEnd, 10).round(2))
+    ax[0].tick_params(axis = 'y', labelsize = fontSize + 5)
+
+    ax[0].set_xticks([])
+    ax[1].set_xticks([])
+    ax[2].set_xticks([])
+    ax[3].set_xticks([0, 30, 60, 90])
+    ax[3].tick_params(axis = 'x', labelsize = fontSize - 5)
+    print ("App working1")
+    vlines = list(range(0, 100, 10))
+    ax[3].vlines(vlines, ymin = 0, ymax = tdepZone.shape[0] - 1, linestyles = 'dotted')
+    ax[3].set_xlim(-10, 100)
+    
+    plot_sinusoids(gtZone, tdepZone, ax[1], linewidth, 'red', 'black')
+    plot_sinusoids(predZone, tdepZone, ax[2], linewidth, 'green', 'blue')
+    tadpolePlotGTComparison(gtZone, ax[3], 'F', 'black', tadpoleScaler)
+    tadpolePlotGTComparison(predZone, ax[3], 'F', 'blue', tadpoleScaler)
+
+    print ("App working2")
+    ax[0].set_title('Input Image', fontsize = fontSize)
+    ax[1].set_title('Ground Truth\nBb: Green\nFrac: Blue', fontsize = fontSize)
+    ax[2].set_title('Prediction\nBb: Green\nFrac: Blue', fontsize = fontSize)
+    ax[3].set_title('Fracture\nGT: Black\nPred: Blue', fontsize = fontSize)
+    print ("App working3")
+    
+    plt.tight_layout()
+    if save:
+        if split:
+            fname = save_path
+        else:
+            fname = pjoin(save_path, '{}m - {}m.pdf'.format(round(tdepZone[0], 2), round(tdepZone[-1], 2)))
+        plt.savefig(fname, format = 'pdf', dpi = dpi, bbox_inches = 'tight')
+        plt.close()
+    else:
+        plt.show()
+def inchToMeter(tdep_array):
+    print('Converting inch to meters')
+    depth_in = tdep_array/10
+    depth_ft = depth_in*0.0833333
+    tdep_array = depth_ft*0.3048
+    return tdep_array
+
+def find_nearest(array, value):
+    array = np.asarray(array)
+    idx = (np.abs(array - value)).argmin()
+    return idx
+
+def calculateAmpPhase(dip_deg,azi_deg,rwell):
+    dip_rad = dip_deg*(np.pi/180)
+    amp = np.tan(dip_rad)*rwell
+    azi_rad = azi_deg*(np.pi/180)
+    phase =  np.pi/2 - azi_rad
+    return amp, phase  
+
+def createSinusoid(amp,phase):
+    w=0.0175
+    fitfunc = lambda t:  amp*np.sin(w*t + phase)
+    # define a sequence of inputs between the smallest and largest known inputs
+    x_line = np.arange(0, 360,1) 
+    # calculate the output for the range
+    y_line = fitfunc(x_line)
+    return x_line, y_line 

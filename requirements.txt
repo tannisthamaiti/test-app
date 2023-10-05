@@ -10,3 +10,4 @@ opencv-python
 scipy
 seaborn
 reportlab
+PyPDF2
