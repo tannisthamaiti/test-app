@@ -44,7 +44,7 @@ def button_clicked(fmi_array, tdep_array, start, gt,  pred, end):
     tadpoleScaler = MinMaxScaler((0, fmiZone.shape[0]))
     tadpoleScaler.fit([[start], [end]])
     st.markdown("Code working")
-    st.write("idx_start",idx_start)
+    st.write("idx_end",idx_end)
 
     comparison_plot(fmiZone, tdepZone, start, gtZone,  predZone, end, tadpoleScaler, fmiRatio, fontSize, 3, None, 300, (15, 30), save = False)
 
