@@ -64,7 +64,7 @@ def main():
     st.header("Automatic vug analysis from FMI logs")
     df1 = []
     
-    conn = sqlite3.connect('your_database.db')
+    conn = sqlite3.connect('your_database.db' , check_same_thread=False)
     cursor = conn.cursor()
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS ranges (
@@ -78,7 +78,7 @@ def main():
         conn.commit()
 
     def clear_database():    
-        conn2 = sqlite3.connect('your_database.db')
+        conn2 = sqlite3.connect('your_database.db' , check_same_thread=False)
         cursor2 = conn.cursor()
         cursor2.execute('''
             CREATE TABLE IF NOT EXISTS ranges (
