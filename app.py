@@ -80,13 +80,6 @@ def main():
     def clear_database():    
         conn2 = sqlite3.connect('your_database.db' , check_same_thread=False)
         cursor2 = conn2.cursor()
-        cursor2.execute('''
-            CREATE TABLE IF NOT EXISTS ranges (
-                start REAL,
-                end REAL,
-                status TEXT
-            )
-        ''')
         cursor2.execute("DELETE FROM ranges")
         conn2.commit()
 
