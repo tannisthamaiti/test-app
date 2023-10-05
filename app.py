@@ -170,18 +170,39 @@ def main():
         st.divider()    
         col1,col2 = st.columns(2)
         with col1:
-            if not data.empty:
-                st.markdown("Download Accepted and Flagged Ranges")
+             # reitrerate button for changed parameters 4 values
+            st.markdown("Accept Original Interpretation")
+            accepted_button = st.button("Accept")
+            if accepted_button:
+                st.success("Accepted Original Interpretation!!")
+                status = "Accepted"
+                zone_start = start
+                zone_end = end
+                # # accepted_range = {'start': [start], 'end': [end], 'status': ['Accepted']}
+                # accepted_range = pd.DataFrame({'start': [zone_start], 'end': [zone_end], 'status': ['Accepted']})
+                # # data = data.concat([data, accepted_range], ignore_index=True)
+                # data = pd.concat([data, accepted_range], ignore_index=True)
+                cursor.execute('''
+                    INSERT INTO ranges (start, end, status)
+                    VALUES (?, ?, ?)
+                ''', (zone_start, zone_end, 'accepted'))
+                conn.commit()
+        with col2:
+            st.markdown("Flag Original Interpretation")
+            flag_button = st.button("Flag")
+            if flag_button:
+                st.success("Flagged original Interpretation")
+                status = "Flagged"
+                zone_start = start
+                zone_end = end
+                # flagged_range = pd.DataFrame({'start': [zone_start], 'end': [zone_end], 'status': ['Flagged']})
+                # data = pd.concat([data, flagged_range], ignore_index=True)
+                cursor.execute('''
+                INSERT INTO ranges (start, end, status)
+                    VALUES (?, ?, ?)
+                ''', (zone_start, zone_end, 'flagged'))
+                conn.commit()
 
-                cursor.execute('SELECT * FROM ranges')
-                rows = cursor.fetchall()
-                csv_data = pd.DataFrame(rows, columns=['start', 'end', 'status']).to_csv(index=False)
-                st.download_button(
-                    label="Click here",
-                    data=csv_data,
-                    file_name="accepted_flagged_report.csv",
-                    key="download_ranges_button"
-                )
         conn.close()
 if __name__ == "__main__":
     main()
