@@ -1229,13 +1229,16 @@ def detect_vugs(start, end, tdep_array_doi, fmi_array_doi, well_radius_doi, gt, 
                                                         depth_from=one_meter_zone_end, radius = holeR, pix_len = pixLen, 
                                                         min_vug_area = min_vug_area, max_vug_area = max_vug_area, 
                                                         min_circ_ratio=min_circ_ratio, max_circ_ratio=max_circ_ratio) #values changed here
+            print(i, len(contours))
             output = get_combined_contours_and_centroids(contours, centroids, vugs,combined_centroids, 
                                                             final_combined_contour, final_combined_vugs,i, threshold = 5)
             combined_centroids, final_combined_contour, final_combined_vugs = output
+            print(i, len(final_combined_contour))
 
         # filter the contours based on the contrast of each contour with the original image
         filtered_contour, filtered_vugs = filter_contours_based_on_original_image(final_combined_contour, final_combined_vugs, 
                                                                                 fmi_array_one_meter_zone, 0.2)
+        print(len(filtered_contour))
 
         # saving original filtered contour and vugs in new variable for further use
         filtered_contour_ = copy.deepcopy(filtered_contour)
@@ -1246,6 +1249,7 @@ def detect_vugs(start, end, tdep_array_doi, fmi_array_doi, well_radius_doi, gt, 
                                                                                                                 filtered_contour_, 
                                                                                                                 filtered_vugs_, 
                                                                                                                 threshold = mean_diff_thresh)
+        print(len(filtered_contour_))
 
 
         # get the contours and centroids from the filtered contours and save them in a list for further use
