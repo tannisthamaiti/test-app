@@ -78,7 +78,7 @@ def main():
         conn.commit()
 
     def clear_database():    
-        conn2 = sqlite3.connect('your_database.db' , check_same_thread=False)
+        conn2 = sqlite3.connect('your_database.db')
         cursor2 = conn2.cursor()
         cursor2.execute("DELETE FROM ranges")
         conn2.commit()
