@@ -1257,7 +1257,7 @@ def comparison_plot(fmiZone, tdepZone, zoneStart, gtZone,  predZone, zoneEnd, ta
         if split:
             fname = save_path
         else:
-            fname = pjoin(".", '{}m - {}m.pdf'.format(round(tdepZone[0], 2), round(tdepZone[-1], 2)))
+            fname = pjoin(save_path, '{}m - {}m.pdf'.format(round(tdepZone[0], 2), round(tdepZone[-1], 2)))
         plt.savefig(fname, format = 'pdf', dpi = dpi, bbox_inches = 'tight')
         plt.close()
     else:
