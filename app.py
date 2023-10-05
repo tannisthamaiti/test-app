@@ -187,6 +187,18 @@ def main():
                     VALUES (?, ?, ?)
                 ''', (zone_start, zone_end, 'accepted'))
                 conn.commit()
+            if st.button("Generate Report"):
+                pdf_paths = os.listdir('whole')
+                pdf_paths = [pdf_path for pdf_path in pdf_paths if pdf_path.endswith('.pdf')]
+                merged_pdf = merge_pdfs(pdf_paths)
+                
+                # Provide a way to download the merged PDF
+                pdf_data = io.BytesIO()
+                merged_pdf.write(pdf_data)
+                pdf_data.seek(0)
+
+                st.success("Report Generated successfully! Click below to download:")
+                st.download_button(label="Download Report", data=pdf_data, file_name="merged.pdf", key="merged_pdf")
         with col2:
             st.markdown("Flag Original Interpretation")
             flag_button = st.button("Flag")
@@ -202,6 +214,7 @@ def main():
                     VALUES (?, ?, ?)
                 ''', (zone_start, zone_end, 'flagged'))
                 conn.commit()
+        
 
         conn.close()
 if __name__ == "__main__":
