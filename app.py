@@ -46,7 +46,7 @@ def button_clicked(fmi_array, tdep_array, start, gt,  pred, end):
     st.markdown("Code working")
     st.write("idx_end",tdepZone[0],tdepZone[-1])
 
-    comparison_plot(fmiZone, tdepZone, start, gtZone,  predZone, end, tadpoleScaler, fmiRatio, fontSize, 3, None, 300, (15, 30), save = True, split = True)
+    comparison_plot(fmiZone, tdepZone, start, gtZone,  predZone, end, tadpoleScaler, fmiRatio, fontSize, 3, None, 300, (15, 30), save = True, split = False)
 
     
 
