@@ -6,6 +6,7 @@ from scipy.stats import skew, kurtosis
 import seaborn as sns
 from os.path import join as pjoin
 #from dlisio import dlis
+import streamlit as st
 
 
 def get_logical_file(dlis_file_name, data_path, dyn):
@@ -1219,7 +1220,7 @@ def tadpolePlotGTComparison(df, ax, sinTypeStart, color, scaler):
 
 def comparison_plot(fmiZone, tdepZone, zoneStart, gtZone,  predZone, zoneEnd, tadpoleScaler, fmiRatio, fontSize, linewidth, 
                     save_path, dpi = 50, figsize = (20, 25), save = True, split = False):
-    _, ax = plt.subplots(1, 4, sharey = True, figsize = figsize,
+    fig, ax = plt.subplots(1, 4, sharey = True, figsize = figsize,
                          gridspec_kw = {'width_ratios': [fmiRatio, fmiRatio, fmiRatio, 1]})
     
     ax[0].imshow(fmiZone, cmap = 'YlOrBr')
@@ -1253,16 +1254,17 @@ def comparison_plot(fmiZone, tdepZone, zoneStart, gtZone,  predZone, zoneEnd, ta
     print ("App working3")
     
     plt.tight_layout()
+    st.pyplot(fig)
     if save:
         if split:
             fname = save_path
         else:
-            #fname = pjoin(save_path, '{}m - {}m.pdf'.format(round(tdepZone[0], 2), round(tdepZone[-1], 2)))
-            fname = 'test.pdf'
+            fname = pjoin(save_path, '{}m - {}m.pdf'.format(round(tdepZone[0], 2), round(tdepZone[-1], 2)))    
         plt.savefig(fname, format = 'pdf', dpi = dpi, bbox_inches = 'tight')
         plt.close()
     else:
         plt.show()
+    return 
 def inchToMeter(tdep_array):
     print('Converting inch to meters')
     depth_in = tdep_array/10
