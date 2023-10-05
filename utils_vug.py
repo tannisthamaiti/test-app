@@ -189,7 +189,7 @@ def get_centeroid(cnt):
     sum_y = np.sum(cnt[..., 1])
     return int(sum_x / length), int(sum_y / length)
 
-def MinMaxScalerCustom(X, min = 0, max = 1):
+def MinMaxScalerCustom(X, min = 0, max = 1, use_real_min_max = True):
     """
     Scales the input data between the specified min and max values.
 
@@ -207,7 +207,14 @@ def MinMaxScalerCustom(X, min = 0, max = 1):
     X_scaled : numpy array
         The scaled data.
     """
-    X_std = (X - np.nanmin(X)) / (np.nanmax(X) - np.nanmin(X))
+    if use_real_min_max:
+        data_min = -446.11914
+        data_max = 1482.8446
+    else:
+        data_min = np.nanmin(X)
+        data_max = np.nanmax(X)
+
+    X_std = (X - data_min) / (data_max - data_min)
     X_scaled = X_std * (max - min) + min
     return X_scaled
 
