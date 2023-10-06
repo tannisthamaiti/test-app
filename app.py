@@ -303,7 +303,7 @@ def main():
             #     key="download_vug_prediction_button"
             # )
 
-            if st.button("Generate Report"):
+            if st.button("Generate Final Report"):
                 pdf_paths = os.listdir('whole')
                 pdf_paths = [pdf_path for pdf_path in pdf_paths if pdf_path.endswith('.pdf')]
                 merged_pdf = merge_pdfs(pdf_paths)
