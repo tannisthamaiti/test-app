@@ -291,17 +291,17 @@ def main():
             # Convert the dataframe to CSV format
             # status = "Test"
             # df1 = [{key: round(value, 4) for key, value in inner_dict.items()} for inner_dict in df1]
-            df1 = pd.DataFrame(df1)
+            # df1 = pd.DataFrame(df1)
             # df1['Status'] = status
-            csv_data = df1.to_csv(index=False)
+            # csv_data = df1.to_csv(index=False)
 
-            # Create a download button for the CSV file
-            st.download_button(
-                label="Click here to download report for depth along with vug predicted",
-                data=csv_data,
-                file_name="depth_vs_vug.csv",
-                key="download_vug_prediction_button"
-            )
+            # # Create a download button for the CSV file
+            # st.download_button(
+            #     label="Click here to download report for depth along with vug predicted",
+            #     data=csv_data,
+            #     file_name="depth_vs_vug.csv",
+            #     key="download_vug_prediction_button"
+            # )
 
             if st.button("Generate Report"):
                 pdf_paths = os.listdir('whole')
