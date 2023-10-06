@@ -282,7 +282,7 @@ def main():
             rows = cursor.fetchall()
             csv_data = pd.DataFrame(rows, columns=['start', 'end', 'status']).to_csv(index=False)
             st.download_button(
-                label="Download Report",
+                label="Download Accepted vs Flagged Report",
                 data=csv_data,
                 file_name="accepted_flagged_ranges.csv",
                 key="download_ranges_button"
