@@ -27,7 +27,6 @@ from utils_vug import *
 
 def button_clicked(fmi_array, tdep_array, start, gt,  pred, end):
     
-    zoneStart, zoneEnd = 2640, 2645
     fontSize = 15
     tadpoleLength = 600
     
@@ -154,7 +153,7 @@ def main():
         col1,col2 = st.columns(2)
 
         default_start = 2633.35
-        default_end = 2659.28 
+        default_end = 2639.28 
         with col1:
             start = st.number_input("Min Depth ", value=default_start)
         with col2:
