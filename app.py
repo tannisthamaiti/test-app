@@ -157,7 +157,7 @@ def main():
         col1,col2 = st.columns(2)
 
         default_start = 2633.35
-        default_end = 2639.28 
+        default_end = 2638.35 
         with col1:
             start = st.number_input("Min Depth ", value=default_start)
         with col2:
@@ -202,6 +202,7 @@ def main():
 
                 st.success("Report Generated successfully! Click below to download:")
                 st.download_button(label="Download Report", data=pdf_data, file_name="merged.pdf", key="merged_pdf")
+                shutil.rmtree('whole')
         with col2:
             st.markdown("Flag Original Interpretation")
             flag_button = st.button("Flag")
