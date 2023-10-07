@@ -55,12 +55,12 @@ def generate_random_string(length):
     return ''.join(random.choice(letters) for _ in range(length))
 
 def main():
-    # if os.path.exists('whole'):
-    #     shutil.rmtree('whole')
-    # os.makedirs('whole', exist_ok=True)
-    # script_dir = os.path.dirname(os.path.abspath(__file__))
-    # os.chdir(script_dir)
-    # st.set_page_config(page_title="Vug Detection", page_icon="🤖", layout="wide", )  
+    if os.path.exists('whole'):
+        shutil.rmtree('whole')
+    os.makedirs('whole', exist_ok=True)
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    os.chdir(script_dir)
+    st.set_page_config(page_title="Vug Detection", page_icon="🤖", layout="wide", )  
     st.header("Automatic vug analysis from FMI logs")
     df1 = []
     
