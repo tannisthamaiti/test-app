@@ -29,7 +29,7 @@ from utils_vug import *
 def button_clicked(fmi_array, tdep_array, start, gt,  pred, end):
     
     fontSize = 20
-    tadpoleLength = 600
+    tadpoleLength = 160
     
     
     idx_start = find_nearest(tdep_array, start)
@@ -39,7 +39,7 @@ def button_clicked(fmi_array, tdep_array, start, gt,  pred, end):
     fmiZone = fmi_array[idx_start:idx_end]
     tdepZone = tdep_array[idx_start:idx_end]
     windowSize = fmiZone.shape[0]
-    fmiLength = fmiZone.shape[0]
+    fmiLength = 360
     fmiRatio = fmiLength/tadpoleLength
     tadpoleScaler = MinMaxScaler((0, fmiZone.shape[0]))
     tadpoleScaler.fit([[start], [end]])
