@@ -1248,8 +1248,8 @@ def comparison_plot(fmiZone, tdepZone, zoneStart, gtZone,  predZone, zoneEnd, ta
 
     print ("App working2")
     ax[0].set_title('Input Image', fontsize = fontSize)
-    ax[1].set_title('Ground Truth\nBb: Green\nFrac: Blue', fontsize = fontSize)
-    ax[2].set_title('Prediction\nBb: Green\nFrac: Blue', fontsize = fontSize)
+    ax[1].set_title('Ground Truth: Frac', fontsize = fontSize)
+    ax[2].set_title('Prediction: Frac', fontsize = fontSize)
     ax[3].set_title('Fracture\nGT: Black\nPred: Blue', fontsize = fontSize)
     print ("App working3")
     
