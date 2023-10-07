@@ -28,7 +28,7 @@ from utils_vug import *
 
 def button_clicked(fmi_array, tdep_array, start, gt,  pred, end):
     
-    fontSize = 15
+    fontSize = 20
     tadpoleLength = 600
     
     
