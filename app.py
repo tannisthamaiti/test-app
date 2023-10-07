@@ -45,7 +45,7 @@ def button_clicked(fmi_array, tdep_array, start, gt,  pred, end):
     tadpoleScaler.fit([[start], [end]])
     
 
-    comparison_plot(fmiZone, tdepZone, start, gtZone,  predZone, end, tadpoleScaler, fmiRatio, fontSize, 3, 'whole', 300, (15, 30), save = True, split = False)
+    comparison_plot(fmiZone, tdepZone, start, gtZone,  predZone, end, tadpoleScaler, fmiRatio, fontSize, 3, 'whole', 300, (20, 25), save = True, split = False)
 
     
 
