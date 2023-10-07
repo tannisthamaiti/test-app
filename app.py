@@ -60,7 +60,7 @@ def main():
     os.makedirs('whole', exist_ok=True)
     script_dir = os.path.dirname(os.path.abspath(__file__))
     os.chdir(script_dir)
-    st.set_page_config(page_title="Vug Detection", page_icon="🤖", layout="wide", )  
+    #st.set_page_config(page_title="Vug Detection", page_icon="🤖", layout="wide", )  
     st.header("Automatic vug analysis from FMI logs")
     df1 = []
     
