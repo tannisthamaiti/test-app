@@ -55,16 +55,16 @@ def generate_random_string(length):
     return ''.join(random.choice(letters) for _ in range(length))
 
 def main():
-    if os.path.exists('whole'):
-        shutil.rmtree('whole')
-    os.makedirs('whole', exist_ok=True)
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    os.chdir(script_dir)
+    # if os.path.exists('whole'):
+    #     shutil.rmtree('whole')
+    # os.makedirs('whole', exist_ok=True)
+    # script_dir = os.path.dirname(os.path.abspath(__file__))
+    # os.chdir(script_dir)
     # st.set_page_config(page_title="Vug Detection", page_icon="🤖", layout="wide", )  
     st.header("Automatic vug analysis from FMI logs")
     df1 = []
     
-    conn = sqlite3.connect('your_database.db' , check_same_thread=False)
+    conn = sqlite3.connect('your_database.db')
     cursor = conn.cursor()
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS ranges (
@@ -85,14 +85,15 @@ def main():
 
     def clear_database_periodically():
         while True:
+            print('Clear database')
             time.sleep(600)  # Sleep for 10 minutes
             clear_database()
 
 
     # Start the background thread to clear the database
-    clear_thread = threading.Thread(target=clear_database_periodically)
-    clear_thread.daemon = True
-    clear_thread.start()
+    # clear_thread = threading.Thread(target=clear_database_periodically)
+    # clear_thread.daemon = True
+    # clear_thread.start()
     
     uploaded_file = st.file_uploader("Upload DLIS File", type=["dlis"])
     
@@ -101,6 +102,8 @@ def main():
     
     if st.button("Import preloaded DLIS"):
         st.session_state.button_clicked = True
+        clear_database()
+        clear_database_periodically()
     # if uploaded_file is not None:
     
     if st.session_state.button_clicked:
@@ -333,11 +336,15 @@ def main():
             button_clicked(start, end, tdep_array_doi, fmi_array_doi, well_radius_doi, gt, stride_mode, k, c_threshold, 
                 min_vug_area, max_vug_area, min_circ_ratio, max_circ_ratio, mean_diff_thresh, pred_df, combined_centroids, 
                 final_combined_contour, final_combined_vugs, height_idx, contour_x, contour_y, total_filtered_vugs, vicinity_threshold, num_rows, vugs_threshold)
+            # cursor.execute('''
+            #     UPDATE ranges
+            #     SET status = ?
+            #     WHERE start = ? AND end = ?
+            # ''', ('evaluated', start, end))
             cursor.execute('''
-                UPDATE ranges
-                SET status = ?
-                WHERE start = ? AND end = ?
-            ''', ('evaluated', start, end))
+                    INSERT INTO ranges (start, end, status)
+                    VALUES (?, ?, ?)
+                ''', (start, end, 'evaluated'))
             conn.commit()
 
         if not data.empty:
