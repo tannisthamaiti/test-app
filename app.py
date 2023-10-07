@@ -12,6 +12,7 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 import streamlit as st
+import shutil
 from dlisio import dlis
 from sklearn.preprocessing import MinMaxScaler
 from tqdm import tqdm
@@ -44,7 +45,7 @@ def button_clicked(fmi_array, tdep_array, start, gt,  pred, end):
     tadpoleScaler.fit([[start], [end]])
     
 
-    comparison_plot(fmiZone, tdepZone, start, gtZone,  predZone, end, tadpoleScaler, fmiRatio, fontSize, 3, None, 300, (15, 30), save = True, split = False)
+    comparison_plot(fmiZone, tdepZone, start, gtZone,  predZone, end, tadpoleScaler, fmiRatio, fontSize, 3, 'whole', 300, (15, 30), save = True, split = False)
 
     
 
@@ -64,6 +65,9 @@ def merge_pdfs(pdf_paths):
 
 
 def main():
+    if os.path.exists('whole'):
+        shutil.rmtree('whole')
+    os.makedirs('whole', exist_ok=True)
     script_dir = os.path.dirname(os.path.abspath(__file__))
     os.chdir(script_dir)
     # st.set_page_config(page_title="Vug Detection", page_icon="🤖", layout="wide", )  
@@ -186,7 +190,7 @@ def main():
                     VALUES (?, ?, ?)
                 ''', (zone_start, zone_end, 'accepted'))
                 conn.commit()
-            if st.button("Generate Report"):
+            if st.button("Generate Final Report"):
                 pdf_paths = os.listdir('whole')
                 pdf_paths = [pdf_path for pdf_path in pdf_paths if pdf_path.endswith('.pdf')]
                 merged_pdf = merge_pdfs(pdf_paths)

@@ -1255,15 +1255,15 @@ def comparison_plot(fmiZone, tdepZone, zoneStart, gtZone,  predZone, zoneEnd, ta
     
     plt.tight_layout()
     st.pyplot(fig)
-    #if save:
-    #    if split:
-    #        fname = save_path
-    #    else:
-    #        fname = pjoin(save_path, '{}m - {}m.pdf'.format(round(tdepZone[0], 2), round(tdepZone[-1], 2)))    
-    #    plt.savefig(fname, format = 'pdf', dpi = dpi, bbox_inches = 'tight')
-    #    plt.close()
-    #else:
-    #    plt.show()
+    if save:
+       if split:
+           fname = save_path
+       else:
+           fname = pjoin(save_path, '{}.pdf'.format(round(tdepZone[0], 2), round(tdepZone[-1], 2)))    
+       plt.savefig(fname, format = 'pdf', dpi = dpi, bbox_inches = 'tight')
+       plt.close()
+    else:
+       plt.show()
     
 def inchToMeter(tdep_array):
     print('Converting inch to meters')
