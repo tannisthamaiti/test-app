@@ -218,6 +218,18 @@ def main():
                     VALUES (?, ?, ?)
                 ''', (zone_start, zone_end, 'flagged'))
                 conn.commit()
+            st.markdown("Click here to download report")
+            cursor.execute('SELECT * FROM ranges')
+            rows = cursor.fetchall()
+            csv_data = pd.DataFrame(rows, columns=['start', 'end', 'status']).to_csv(index=False)
+            st.download_button(
+                label="Download Accepted vs Flagged Report",
+                data=csv_data,
+                file_name="accepted_flagged_ranges.csv",
+                key="download_ranges_button"
+            )
+
+               
         
 
         conn.close()
