@@ -227,11 +227,12 @@ def main():
             new_default_max_vug_area = 10.28
             new_default_min_circ_ratio = 0.5
             new_default_max_circ_ratio = 1.0
-
+            st.title("Reiterate parameters")
             min_vug_area = st.number_input("Min Vug Area (default: 0.5)", value=new_default_min_vug_area)
             max_vug_area = st.number_input("Max Vug Area (default: 10.28)", value=new_default_max_vug_area)
             min_circ_ratio = st.number_input("Min Circ Ratio (default: 0.5)", value=new_default_min_circ_ratio)
             max_circ_ratio = st.number_input("Max Circ Ratio (default: 1.0)", value=new_default_max_circ_ratio)
+            st.markdown("More information on the parameters are provided in user manual")
 
             # reset_button = st.button("Reset Values")
 
