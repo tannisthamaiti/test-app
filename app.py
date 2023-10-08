@@ -163,13 +163,7 @@ def main():
         with col2:
             end = st.number_input("Max Depth", value=default_end)
 
-        button_clicked(fmi_array, tdep_array, start, gt,  pred, end)
-        cursor.execute('''
-                UPDATE ranges
-                SET status = ?
-                WHERE start = ? AND end = ?
-            ''', ('evaluated', start, end))
-        conn.commit()
+        
         st.divider()    
         col1,col2 = st.columns(2)
         with col1:
