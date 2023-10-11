@@ -1229,13 +1229,13 @@ def comparison_plot(fmiZone, tdepZone, zoneStart, gtZone,  predZone, zoneEnd, ta
     ax[3].imshow(np.zeros((fmiZone.shape[0], 90)), cmap = 'gray', vmin = -10, vmax = 0)
     
     plt.yticks(np.linspace(0, tdepZone.shape[0], 10), np.linspace(zoneStart, zoneEnd, 10).round(2))
-    ax[0].tick_params(axis = 'y', labelsize = fontSize + 5)
+    ax[0].tick_params(axis = 'y', labelsize = fontSize)
 
     ax[0].set_xticks([])
     ax[1].set_xticks([])
     ax[2].set_xticks([])
     ax[3].set_xticks([0, 30, 60, 90])
-    ax[3].tick_params(axis = 'x', labelsize = fontSize - 5)
+    ax[3].tick_params(axis = 'x', labelsize = fontSize)
     print ("App working1")
     vlines = list(range(0, 100, 10))
     ax[3].vlines(vlines, ymin = 0, ymax = tdepZone.shape[0] - 1, linestyles = 'dotted')
