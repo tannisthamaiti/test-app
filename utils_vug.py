@@ -1236,7 +1236,7 @@ def comparison_plot(fmiZone, tdepZone, zoneStart, gtZone,  predZone, zoneEnd, ta
     ax[1].set_xticks([])
     ax[2].set_xticks([])
     ax[3].set_xticks([0, 30, 60, 90])
-    ax[3].tick_params(axis = 'x', labelsize = fontSize)
+    ax[3].tick_params(axis = 'x', labelsize = fontSize - 5)
     print ("App working1")
     vlines = list(range(0, 100, 10))
     ax[3].vlines(vlines, ymin = 0, ymax = tdepZone.shape[0] - 1, linestyles = 'dotted')
