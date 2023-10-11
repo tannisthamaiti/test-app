@@ -1,29 +1,27 @@
 import base64
 import copy
+import io
 import os
 import random
+import shutil
 import sqlite3
 import string
 import threading
 import time
+from os.path import join as pjoin
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import seaborn as sns
 import streamlit as st
-import shutil
 from dlisio import dlis
 from sklearn.preprocessing import MinMaxScaler
 from tqdm import tqdm
-from os.path import join as pjoin
-import io
 
 from utils_vug import *
 
 
-
-            
 
 def button_clicked(fmi_array, tdep_array, start, gt,  pred, end):
     
@@ -84,13 +82,13 @@ def main():
 
     def clear_database_periodically():
         while True:
-            time.sleep(600)  # Sleep for 10 minutes
+            time.sleep(60 * 60)  # Sleep for 10 minutes
             clear_database()
 
     # Start the background thread to clear the database
-    clear_thread = threading.Thread(target=clear_database_periodically)
-    clear_thread.daemon = True
-    clear_thread.start()
+    # clear_thread = threading.Thread(target=clear_database_periodically)
+    # clear_thread.daemon = True
+    # clear_thread.start()
     
     uploaded_file = st.file_uploader("Upload DLIS File", type=["dlis"])
     
@@ -102,6 +100,10 @@ def main():
     # if uploaded_file is not None:
     
     if st.session_state.button_clicked:
+
+        # clear database when user click `Import preloaded DLIS` button
+        clear_database()
+        clear_database_periodically()
 
         st.success("File uploaded successfully")
         fmi_df = pd.read_csv("fmi_array_dyn.csv")
