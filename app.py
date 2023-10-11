@@ -97,13 +97,14 @@ def main():
     
     if st.button("Import preloaded DLIS"):
         st.session_state.button_clicked = True
+         # clear database when user click `Import preloaded DLIS` button
+        clear_database()
+        clear_database_periodically()
     # if uploaded_file is not None:
     
     if st.session_state.button_clicked:
 
-        # clear database when user click `Import preloaded DLIS` button
-        clear_database()
-        clear_database_periodically()
+       
 
         st.success("File uploaded successfully")
         fmi_df = pd.read_csv("fmi_array_dyn.csv")
