@@ -19,7 +19,6 @@ from tqdm import tqdm
 from os.path import join as pjoin
 import io
 
-import PyPDF2
 from utils_vug import *
 
 
@@ -54,14 +53,6 @@ def generate_random_string(length):
     letters = string.ascii_lowercase
     return ''.join(random.choice(letters) for _ in range(length))
 
-
-def merge_pdfs(pdf_paths):
-    merged_pdf = PyPDF2.PdfMerger()
-    
-    for pdf_path in pdf_paths:
-        merged_pdf.append(pjoin('whole', pdf_path))
-    
-    return merged_pdf
 
 
 def main():

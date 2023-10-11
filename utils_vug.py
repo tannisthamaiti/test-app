@@ -7,6 +7,7 @@ import seaborn as sns
 from os.path import join as pjoin
 #from dlisio import dlis
 import streamlit as st
+import PyPDF2
 
 
 def get_logical_file(dlis_file_name, data_path, dyn):
@@ -1292,3 +1293,13 @@ def createSinusoid(amp,phase):
     # calculate the output for the range
     y_line = fitfunc(x_line)
     return x_line, y_line 
+
+def merge_pdfs(pdf_paths):
+    pdf_paths = [float(i[:-4]) for i in pdf_paths]
+    pdf_paths.sort()
+    merged_pdf = PyPDF2.PdfMerger()
+    
+    for pdf_path in pdf_paths:
+        merged_pdf.append(pjoin('whole', f"{pdf_path}.pdf"))
+
+    return merged_pdf
