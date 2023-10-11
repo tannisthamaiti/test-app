@@ -163,6 +163,8 @@ def main():
         with col2:
             end = st.number_input("Max Depth", value=default_end)
 
+        button_clicked(fmi_array, tdep_array, start, gt,  pred, end)
+
         
         st.divider()    
         col1,col2 = st.columns(2)
