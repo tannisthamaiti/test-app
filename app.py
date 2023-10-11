@@ -65,6 +65,9 @@ def merge_pdfs(pdf_paths):
 
 
 def main():
+    # if os.path.exists('whole'):
+    #     shutil.rmtree('whole')
+    os.makedirs('whole', exist_ok=True)
     script_dir = os.path.dirname(os.path.abspath(__file__))
     os.chdir(script_dir)
     # st.set_page_config(page_title="Vug Detection", page_icon="🤖", layout="wide", )  
@@ -105,9 +108,6 @@ def main():
     
     if st.button("Import preloaded DLIS"):
         st.session_state.button_clicked = True
-        if os.path.exists('whole'):
-            shutil.rmtree('whole')
-        os.makedirs('whole', exist_ok=True)
     # if uploaded_file is not None:
     
     if st.session_state.button_clicked:
