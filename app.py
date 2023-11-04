@@ -163,19 +163,10 @@ def main():
         st.divider() 
         
         # extract csv data
-        gtrCsvData= pd.read_csv("./GTReservoirZone.csv")
-        gtrCsvDataFiltered1 = gtrCsvData [(gtrCsvData ["Depth"] < end)]
-        gtrCsvDataFiltered = gtrCsvDataFiltered1 [(gtrCsvDataFiltered1 ["Depth"] > start)]
-        df = pd.DataFrame(
-                {
-                    "Depth": gtrCsvDataFiltered.Depth, 
-                    'Dip': gtrCsvDataFiltered.Dip , 
-                    'Azimuth': gtrCsvDataFiltered.Azimuth
-                }
-            )
+        gtrCsvData = pd.read_csv("./GTReservoirZone.csv")
+        filtered_data = gtrCsvData[(gtrCsvData["Depth"] > start) & (gtrCsvData["Depth"] < end)]
 
-
-        st.table(df)
+        st.table( filtered_data[['Depth', 'Dip', 'Azimuth']])
         st.divider()    
         col1,col2 = st.columns(2)
         with col1:
