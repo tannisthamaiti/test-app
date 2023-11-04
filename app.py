@@ -77,6 +77,7 @@ def main():
         conn.commit()
 
     def clear_database():
+        print('clear_database')
         cursor.execute("DELETE FROM ranges")
         conn.commit()
 
@@ -159,7 +160,22 @@ def main():
 
         button_clicked(fmi_array, tdep_array, start, gt,  pred, end)
 
+        st.divider() 
         
+        # extract csv data
+        gtrCsvData= pd.read_csv("./GTReservoirZone.csv")
+        gtrCsvDataFiltered1 = gtrCsvData [(gtrCsvData ["Depth"] < end)]
+        gtrCsvDataFiltered = gtrCsvDataFiltered1 [(gtrCsvDataFiltered1 ["Depth"] > start)]
+        df = pd.DataFrame(
+                {
+                    "Depth": gtrCsvDataFiltered.Depth, 
+                    'Dip': gtrCsvDataFiltered.Dip , 
+                    'Azimuth': gtrCsvDataFiltered.Azimuth
+                }
+            )
+
+
+        st.table(df)
         st.divider()    
         col1,col2 = st.columns(2)
         with col1:
