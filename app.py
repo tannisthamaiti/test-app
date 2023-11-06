@@ -100,7 +100,7 @@ def main():
         st.session_state.button_clicked = True
          # clear database when user click `Import preloaded DLIS` button
         clear_database()
-        clear_database_periodically()
+        # clear_database_periodically()
     # if uploaded_file is not None:
     
     if st.session_state.button_clicked:
@@ -163,10 +163,10 @@ def main():
         st.divider() 
         
         # # extract csv data
-        # gtrCsvData = pd.read_csv("./GTReservoirZone.csv")
-        # filtered_data = gtrCsvData[(gtrCsvData["Depth"] > start) & (gtrCsvData["Depth"] < end)]
+        gtrCsvData = pd.read_csv("./GTReservoirZone.csv")
+        filtered_data = gtrCsvData[(gtrCsvData["Depth"] > start) & (gtrCsvData["Depth"] < end)]
 
-        # st.table( filtered_data[['Depth', 'Dip', 'Azimuth']])
+        st.table( filtered_data[['Depth', 'Dip', 'Azimuth']])
         st.divider()    
         col1,col2 = st.columns(2)
         with col1:
