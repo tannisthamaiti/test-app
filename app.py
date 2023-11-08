@@ -103,7 +103,7 @@ def main():
     if st.button("Import preloaded DLIS"):
         st.session_state.button_clicked = True
         clear_database()
-        clear_database_periodically()
+        # clear_database_periodically()
     # if uploaded_file is not None:
     
     if st.session_state.button_clicked:
